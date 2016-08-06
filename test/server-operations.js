@@ -33,7 +33,7 @@ var serverData = {
 };
 removeServer = function (serverToRemove, callback) {
     if (serverToRemove.id) {
-        checkServerReady(serverToRemove, function () {
+        helper.checkServerReady(serverToRemove, function () {
             oneandone.deleteServer(serverToRemove.id, function (error, response, body) {
                 assert.equal(error, null);
                 callback();
@@ -45,22 +45,6 @@ removeServer = function (serverToRemove, callback) {
     }
 };
 
-var checkServerReady = function (currentServer, callback) {
-    var checkServer = {};
-    oneandone.getServer(currentServer.id, function (error, response, body) {
-        checkServer = JSON.parse(body);
-        if ((checkServer.status.state != oneandone.ServerState.POWERED_OFF
-            && checkServer.status.state != oneandone.ServerState.POWERED_ON)
-            || (checkServer.status.percent != null && checkServer.status.percent != 0)) {
-            setTimeout(function () {
-                checkServerReady(checkServer, callback);
-            }, 5000);
-        } else {
-            callback();
-        }
-    });
-
-};
 
 describe(' Server operation tests', function () {
     this.timeout(900000);
@@ -105,7 +89,7 @@ describe(' Server operation tests', function () {
         updateDVD = {
             "id": "81504C620D98BCEBAA5202D145203B4B"
         };
-        checkServerReady(server, function () {
+        helper.checkServerReady(server, function () {
             oneandone.loadDvd(server.id, updateDVD, function (error, response, body) {
                 assert.equal(error, null);
                 assert.notEqual(response, null);
@@ -118,7 +102,7 @@ describe(' Server operation tests', function () {
     });
 
     it('unload a DVD', function (done) {
-        checkServerReady(server, function () {
+        helper.checkServerReady(server, function () {
             oneandone.unloadDvd(server.id, function (error, response, body) {
                 assert.equal(error, null);
                 assert.notEqual(response, null);
@@ -132,7 +116,7 @@ describe(' Server operation tests', function () {
         pnData = {
             "id": "44700F362BA19969E7482BE0696D388F"
         };
-        checkServerReady(server, function () {
+        helper.checkServerReady(server, function () {
             oneandone.assignPrivateNetwork(server.id, pnData, function (error, response, body) {
                 assert.equal(error, null);
                 assert.notEqual(response, null);
@@ -143,7 +127,7 @@ describe(' Server operation tests', function () {
     });
 
     it('List Private networks', function (done) {
-        checkServerReady(server, function () {
+        helper.checkServerReady(server, function () {
             oneandone.listPrivateNetworks(server.id, function (error, response, body) {
                 assert.equal(error, null);
                 assert.notEqual(body, null);
@@ -164,7 +148,7 @@ describe(' Server operation tests', function () {
     });
 
     it('Delete a Private network', function (done) {
-        checkServerReady(server, function () {
+        helper.checkServerReady(server, function () {
             oneandone.deletePrivateNetwork(server.id, currentPrivateNetwork.id, function (error, response, body) {
                 assert.equal(error, null);
                 assert.notEqual(response, null);
@@ -175,7 +159,7 @@ describe(' Server operation tests', function () {
     });
 
     it('Create a snapshot', function (done) {
-        checkServerReady(server, function () {
+        helper.checkServerReady(server, function () {
             oneandone.createSnapshot(server.id, null, function (error, response, body) {
                 assert.equal(error, null);
                 assert.notEqual(response, null);
@@ -189,7 +173,7 @@ describe(' Server operation tests', function () {
 
     it('List snapshots', function (done) {
         setTimeout(function () {
-            checkServerReady(server, function () {
+            helper.checkServerReady(server, function () {
                 oneandone.listSnapshots(server.id, function (error, response, body) {
                     assert.equal(error, null);
                     assert.notEqual(body, null);
@@ -203,7 +187,7 @@ describe(' Server operation tests', function () {
     });
 
     it('Update snapshot', function (done) {
-        checkServerReady(server, function () {
+        helper.checkServerReady(server, function () {
             oneandone.restoreSnapshot(server.id, currentsnapShot.id, null, function (error, response, body) {
                 assert.equal(error, null);
                 assert.notEqual(response, null);
@@ -214,7 +198,7 @@ describe(' Server operation tests', function () {
     });
 
     it('Delete snapshot', function (done) {
-        checkServerReady(server, function () {
+        helper.checkServerReady(server, function () {
             oneandone.deleteSnapshot(server.id, currentsnapShot.id, function (error, response, body) {
                 assert.equal(error, null);
                 assert.notEqual(response, null);
@@ -229,7 +213,7 @@ describe(' Server operation tests', function () {
             "name": "node clone",
             "datacenter_id": server.datacenter.id
         };
-        checkServerReady(server, function () {
+        helper.checkServerReady(server, function () {
             oneandone.clone(server.id, cloneData, function (error, response, body) {
                 assert.equal(error, null);
                 assert.notEqual(response, null);

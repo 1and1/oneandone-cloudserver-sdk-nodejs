@@ -32,38 +32,6 @@ var serverData = {
     "datacenter_id": "908DC2072407C94C8054610AD5A53B8C"
 };
 
-var checkServerReady = function (currentServer, callback) {
-    var checkServer = {};
-    oneandone.getServer(currentServer.id, function (error, response, body) {
-        checkServer = JSON.parse(body);
-        if ((checkServer.status.state != oneandone.ServerState.POWERED_OFF
-            && checkServer.status.state != oneandone.ServerState.POWERED_ON)
-            || (checkServer.status.percent != null && checkServer.status.percent != 0)) {
-            setTimeout(function () {
-                checkServerReady(checkServer, callback);
-            }, 5000);
-        } else {
-            callback();
-        }
-    });
-
-};
-
-var turnOffServer = function (serverToTurnOff, callback) {
-    updateData = {
-        "action": oneandone.ServerUpdateAction.POWER_OFF,
-        "method": oneandone.ServerUpdateMethod.SOFTWARE
-
-    };
-    checkServerReady(serverToTurnOff, function () {
-        oneandone.updateServerStatus(serverToTurnOff.id, updateData, function (error, response, body) {
-            assert.equal(error, null);
-            assert.notEqual(response, null);
-            assert.notEqual(body, null);
-            callback();
-        });
-    });
-};
 
 describe('Server tests', function () {
     this.timeout(900000);
@@ -78,7 +46,7 @@ describe('Server tests', function () {
             assert.equal(server.name, serverData.name)
             done();
         });
-        //oneandone.getServer("B88A32C96FB1EEF13767FF7B2EB5657C", function (error, response, body) {
+        //oneandone.getServer("AF9EDF25297C77CCA0675A0BCDC9E22A", function (error, response, body) {
         //    server = JSON.parse(body);
         //    done();
         //});
@@ -87,7 +55,7 @@ describe('Server tests', function () {
 
     removeServer = function (serverToRemove, callback) {
         if (serverToRemove.id) {
-            checkServerReady(serverToRemove, function () {
+            helper.checkServerReady(serverToRemove, function () {
                 oneandone.deleteServer(serverToRemove.id, function (error, response, body) {
                     assert.equal(error, null);
                     callback();
@@ -124,7 +92,7 @@ describe('Server tests', function () {
             assert.equal(fixedInstaceserver.name, fixedInstace.name)
             done();
         });
-        //oneandone.getServer("860B87CFE3CD9023BAF77D6A883B0664", function (error, response, body) {
+        //oneandone.getServer("F70F87FA85B3E82875EB357C015ECD8E", function (error, response, body) {
         //    fixedInstaceserver = JSON.parse(body);
         //    done();
         //});
@@ -199,11 +167,11 @@ describe('Server tests', function () {
 
     it('Update server', function (done) {
         updateData = {
-            "name": "Node22 Server - UPDATED",
+            "name": "Node Server - UPDATED",
             "description": "desc",
 
         };
-        checkServerReady(server, function () {
+        helper.checkServerReady(server, function () {
             oneandone.updateServer(server.id, updateData, function (error, response, body) {
                 assert.equal(error, null);
                 assert.notEqual(response, null);
@@ -223,7 +191,7 @@ describe('Server tests', function () {
             "method": oneandone.ServerUpdateMethod.SOFTWARE
 
         };
-        checkServerReady(server, function () {
+        helper.checkServerReady(server, function () {
             oneandone.updateServerStatus(server.id, updateData, function (error, response, body) {
                 assert.equal(error, null);
                 assert.notEqual(response, null);
@@ -250,8 +218,8 @@ describe('Server tests', function () {
             "cores_per_processor": 2,
             "ram": 6
         };
-        turnOffServer(server, function () {
-            checkServerReady(server, function () {
+        helper.turnOffServer(server, function () {
+            helper.checkServerReady(server, function () {
                 oneandone.updateHardware(server.id, updateHardwareData, function (error, response, body) {
                     assert.equal(error, null);
                     assert.notEqual(response, null);
@@ -265,7 +233,7 @@ describe('Server tests', function () {
     });
 
     it('List Servers HDDs ', function (done) {
-        checkServerReady(server, function () {
+        helper.checkServerReady(server, function () {
             oneandone.listHdds(server.id, function (error, response, body) {
                 assert.equal(error, null);
                 assert.notEqual(body, null);
@@ -286,12 +254,12 @@ describe('Server tests', function () {
                 }
             ]
         };
-        checkServerReady(server, function () {
+        helper.checkServerReady(server, function () {
             oneandone.addHdd(server.id, hddData, function (error, response, body) {
                 assert.equal(error, null);
                 var hdds = JSON.parse(body);
                 //give time for the Hdd to be added
-                checkServerReady(server, function () {
+                helper.checkServerReady(server, function () {
                     assert.notEqual(response, null);
                     assert.notEqual(body, null);
                     assert(hdds.hardware.hdds.length > 0);
@@ -314,7 +282,7 @@ describe('Server tests', function () {
         updateData = {
             "size": 40
         };
-        checkServerReady(server, function () {
+        helper.checkServerReady(server, function () {
             oneandone.updateHdd(server.id, currentHdd.id, updateData, function (error, response, body) {
                 assert.equal(error, null);
                 assert.notEqual(response, null);
@@ -327,7 +295,7 @@ describe('Server tests', function () {
     });
 
     it('Delete server specific Hdd', function (done) {
-        checkServerReady(server, function () {
+        helper.checkServerReady(server, function () {
             oneandone.listHdds(server.id, function (error, response, body) {
                 var hddList = JSON.parse(body);
                 var hddToDelete;
@@ -369,7 +337,7 @@ describe('Server tests', function () {
             "id": currentImage.id,
             "password": "Test123!"
         };
-        checkServerReady(server, function () {
+        helper.checkServerReady(server, function () {
             oneandone.updateImage(fixedInstaceserver.id, updateData, function (error, response, body) {
                 assert.equal(error, null);
                 assert.notEqual(response, null);

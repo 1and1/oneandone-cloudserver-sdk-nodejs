@@ -32,23 +32,6 @@ var serverData = {
     "datacenter_id": "908DC2072407C94C8054610AD5A53B8C"
 };
 
-var checkServerReady = function (currentServer, callback) {
-    var checkServer = {};
-    oneandone.getServer(currentServer.id, function (error, response, body) {
-        checkServer = JSON.parse(body);
-        if ((checkServer.status.state != oneandone.ServerState.POWERED_OFF
-            && checkServer.status.state != oneandone.ServerState.POWERED_ON)
-            || (checkServer.status.percent != null && checkServer.status.percent != 0)) {
-            setTimeout(function () {
-                checkServerReady(checkServer, callback);
-            }, 5000);
-        } else {
-            callback();
-        }
-    });
-
-};
-
 describe('Server Network tests', function () {
     this.timeout(900000);
 
@@ -66,7 +49,7 @@ describe('Server Network tests', function () {
 
     removeServer = function (serverToRemove, callback) {
         if (serverToRemove.id) {
-            checkServerReady(serverToRemove, function () {
+            helper.checkServerReady(serverToRemove, function () {
                 oneandone.deleteServer(serverToRemove.id, function (error, response, body) {
                     assert.equal(error, null);
                     callback();
@@ -80,7 +63,7 @@ describe('Server Network tests', function () {
 
     removeIp = function (serverToRemove, ip_id, callback) {
         if (serverToRemove.id && ip_id) {
-            checkServerReady(serverToRemove, function () {
+            helper.checkServerReady(serverToRemove, function () {
                 oneandone.deleteIp(serverToRemove.id, ip_id, function (error, response, body) {
                     assert.equal(error, null);
                     callback();
@@ -101,11 +84,11 @@ describe('Server Network tests', function () {
         ipData = {
             "type": "IPV4"
         };
-        checkServerReady(server, function () {
+        helper.checkServerReady(server, function () {
             oneandone.addIp(server.id, ipData, function (error, response, body) {
                 assert.equal(error, null);
                 var result = JSON.parse(body);
-                checkServerReady(server, function () {
+                helper.checkServerReady(server, function () {
                     assert.notEqual(response, null);
                     assert.notEqual(body, null);
                     assert.notEqual(result, null);
@@ -143,9 +126,9 @@ describe('Server Network tests', function () {
         firewallPolicyData = {
             "id": "34A7E423DA3253E6D38563ED06F1041F"
         };
-        checkServerReady(server, function () {
+        helper.checkServerReady(server, function () {
             oneandone.addFirewallPolicy(server.id, currentIp.id, firewallPolicyData, function (error, response, body) {
-                checkServerReady(server, function () {
+                helper.checkServerReady(server, function () {
                     assert.equal(error, null);
                     assert.notEqual(body, null);
                     done();
@@ -155,7 +138,7 @@ describe('Server Network tests', function () {
     });
 
     it('List ip FirewallPolicies', function (done) {
-        checkServerReady(server, function () {
+        helper.checkServerReady(server, function () {
             oneandone.listIpFirewallPolicies(server.id, currentIp.id, function (error, response, body) {
                 assert.equal(error, null);
                 assert.notEqual(body, null);
@@ -172,7 +155,7 @@ describe('Server Network tests', function () {
     });
 
     it('Remove Firewall Policy from  an IP', function (done) {
-        checkServerReady(server, function () {
+        helper.checkServerReady(server, function () {
             oneandone.deleteIpFirewallPolicy(server.id, currentIp.id, function (error, response, body) {
                 assert.equal(error, null);
                 assert.notEqual(response, null);
@@ -187,9 +170,9 @@ describe('Server Network tests', function () {
         loadBalancerData = {
             "load_balancer_id": "13C3F75BA55AF28B8B2B4E508786F48B"
         };
-        checkServerReady(server, function () {
+        helper.checkServerReady(server, function () {
             oneandone.addIpLoadBalancer(server.id, currentIp.id, loadBalancerData, function (error, response, body) {
-                checkServerReady(server, function () {
+                helper.checkServerReady(server, function () {
                     assert.equal(error, null);
                     assert.notEqual(body, null);
                     done();
@@ -199,7 +182,7 @@ describe('Server Network tests', function () {
     });
 
     it('List ip Load Balancers', function (done) {
-        checkServerReady(server, function () {
+        helper.checkServerReady(server, function () {
             oneandone.listIpLoadBalancer(server.id, currentIp.id, function (error, response, body) {
                 assert.equal(error, null);
                 assert.notEqual(body, null);
@@ -212,7 +195,7 @@ describe('Server Network tests', function () {
     });
 
     it('Remove Load Balancers from  an IP', function (done) {
-        checkServerReady(server, function () {
+        helper.checkServerReady(server, function () {
             oneandone.deleteIpLoadBalancer(server.id, currentIp.id, loadBalancer.id, function (error, response, body) {
                 assert.equal(error, null);
                 assert.notEqual(response, null);
