@@ -92,7 +92,7 @@ describe('Server tests', function () {
             assert.equal(fixedInstaceserver.name, fixedInstace.name)
             done();
         });
-        //oneandone.getServer("F70F87FA85B3E82875EB357C015ECD8E", function (error, response, body) {
+        //oneandone.getServer("1B57666721312AF7DAEFE193AB864F50", function (error, response, body) {
         //    fixedInstaceserver = JSON.parse(body);
         //    done();
         //});

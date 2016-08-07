@@ -29,7 +29,7 @@ var serverData = {
 };
 
 
-describe('Server tests', function () {
+describe('Images tests', function () {
     this.timeout(900000);
 
     before(function (done) {

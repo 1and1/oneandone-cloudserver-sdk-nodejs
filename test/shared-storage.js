@@ -26,7 +26,7 @@ var serverData = {
 };
 
 
-describe('Server tests', function () {
+describe('Shared Storage tests', function () {
     this.timeout(900000);
 
     before(function (done) {

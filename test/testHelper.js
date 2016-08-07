@@ -22,6 +22,7 @@ helper.checkServerReady = function (currentServer, callback) {
     });
 
 };
+
 helper.turnOffServer = function (serverToTurnOff, callback) {
     updateData = {
         "action": oneandone.ServerUpdateAction.POWER_OFF,
@@ -34,6 +35,12 @@ helper.turnOffServer = function (serverToTurnOff, callback) {
     });
 };
 
+helper.updateServerData = function (getServer, callback) {
+    oneandone.getServer(getServer.id, function (error, response, body) {
+        var object = JSON.parse(body);
+        callback(object);
+    });
+};
 helper.authenticate = function (oneandone) {
     oneandone.oneandoneauth(token);
 };
