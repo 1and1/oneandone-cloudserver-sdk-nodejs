@@ -82,9 +82,9 @@ describe('LoadBalancer tests', function () {
         }
     };
 
-    removeLoadBalancer = function (firewallToRemove, callback) {
-        if (firewallToRemove.id) {
-            oneandone.deleteLoadBalancer(firewallToRemove.id, function (error, response, body) {
+    removeLoadBalancer = function (toRemove, callback) {
+        if (toRemove.id) {
+            oneandone.deleteLoadBalancer(toRemove.id, function (error, response, body) {
                 callback();
             });
         }
@@ -104,7 +104,7 @@ describe('LoadBalancer tests', function () {
 
     it('List Load Balancers', function (done) {
         setTimeout(function () {
-            oneandone.listFirewallPolicies(function (error, response, body) {
+            oneandone.listLoadBalancers(function (error, response, body) {
                 assert.equal(error, null);
                 assert.notEqual(response, null);
                 assert.notEqual(body, null);
@@ -120,7 +120,7 @@ describe('LoadBalancer tests', function () {
             query: "node"
         };
         setTimeout(function () {
-            oneandone.listFirewallPoliciesWithOptions(options, function (error, response, body) {
+            oneandone.listLoadBalancersWithOptions(options, function (error, response, body) {
                 assert.equal(error, null);
                 assert.notEqual(response, null);
                 assert.notEqual(body, null);
