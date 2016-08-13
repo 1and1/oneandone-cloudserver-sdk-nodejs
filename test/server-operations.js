@@ -117,7 +117,7 @@ describe(' Server operation tests', function () {
             "id": "44700F362BA19969E7482BE0696D388F"
         };
         helper.checkServerReady(server, function () {
-            oneandone.assignPrivateNetwork(server.id, pnData, function (error, response, body) {
+            oneandone.assignPrivateNetworkToServer(server.id, pnData, function (error, response, body) {
                 assert.equal(error, null);
                 assert.notEqual(response, null);
                 assert.notEqual(body, null);
@@ -128,7 +128,7 @@ describe(' Server operation tests', function () {
 
     it('List Private networks', function (done) {
         helper.checkServerReady(server, function () {
-            oneandone.listPrivateNetworks(server.id, function (error, response, body) {
+            oneandone.listServerPrivateNetworks(server.id, function (error, response, body) {
                 assert.equal(error, null);
                 assert.notEqual(body, null);
                 var object = JSON.parse(body);
@@ -139,7 +139,7 @@ describe(' Server operation tests', function () {
     });
 
     it('Get a Private network', function (done) {
-        oneandone.getPrivateNetwork(server.id, currentPrivateNetwork.id, function (error, response, body) {
+        oneandone.getServerPrivateNetwork(server.id, currentPrivateNetwork.id, function (error, response, body) {
             assert.equal(error, null);
             assert.notEqual(response, null);
             assert.notEqual(body, null);
@@ -149,7 +149,7 @@ describe(' Server operation tests', function () {
 
     it('Delete a Private network', function (done) {
         helper.checkServerReady(server, function () {
-            oneandone.deletePrivateNetwork(server.id, currentPrivateNetwork.id, function (error, response, body) {
+            oneandone.deletePrivateNetworkFromServer(server.id, currentPrivateNetwork.id, function (error, response, body) {
                 assert.equal(error, null);
                 assert.notEqual(response, null);
                 assert.notEqual(body, null);

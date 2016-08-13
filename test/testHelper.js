@@ -20,7 +20,23 @@ helper.checkServerReady = function (currentServer, callback) {
             callback();
         }
     });
+};
 
+helper.checkPrivateNetworkReady = function (currentServer, privateNetwork, callback) {
+    var checkPn = {};
+    oneandone.getServerPrivateNetwork(currentServer.id, privateNetwork.id,
+        function (error, response, body) {
+            checkPn = JSON.parse(body);
+            if (checkPn.state != oneandone.GenericState.ACTIVE) {
+                setTimeout(function () {
+                    helper.checkPrivateNetworkReady(currentServer, privateNetwork, callback);
+                }, 5000);
+            } else {
+                callback();
+            }
+        }
+    )
+    ;
 };
 
 helper.turnOffServer = function (serverToTurnOff, callback) {
