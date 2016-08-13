@@ -30,8 +30,7 @@ describe('Private Network tests', function () {
 
     before(function (done) {
         helper.authenticate(oneandone);
-        oneandone.getServer("A13E938F9C32DF9632A110C912E8B574", function (error, response, body) {
-            //oneandone.createServer(serverData, function (error, response, body) {
+        oneandone.createServer(serverData, function (error, response, body) {
             server = JSON.parse(body);
             var pnData = {
                 "name": "node Private Network",
