@@ -51,6 +51,29 @@ helper.turnOffServer = function (serverToTurnOff, callback) {
     });
 };
 
+helper.getRandomServerWithMonitoringPolicy = function (callback) {
+    var servers = [];
+    var currentServer = {};
+    oneandone.listServers(function (error, response, body) {
+        servers = JSON.parse(body);
+        var i = 0;
+
+        function myLoop(i) {
+            if (i < servers.length) {
+                oneandone.getServer(servers[i].id, function (error1, response1, body1) {
+                    currentServer = JSON.parse(body1);
+                    if (currentServer.monitoring_policy) {
+                        callback(currentServer);
+                    } else {
+                        myLoop(i + 1);
+                    }
+                });
+            }
+        };
+        myLoop(0);
+    });
+};
+
 helper.updateServerData = function (getServer, callback) {
     oneandone.getServer(getServer.id, function (error, response, body) {
         var object = JSON.parse(body);
