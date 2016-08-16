@@ -6,7 +6,6 @@ var oneandone = require('../lib/liboneandone');
 var helper = require('../test/testHelper');
 var server = {};
 
-
 describe('Monitoring center tests', function () {
     this.timeout(900000);
 
@@ -23,7 +22,7 @@ describe('Monitoring center tests', function () {
     });
 
     it('List Monitoring Centers', function (done) {
-        oneandone.listMonitorinCenters(function (error, response, body) {
+        oneandone.listMonitoringCenters(function (error, response, body) {
             assert.equal(error, null);
             assert.notEqual(response, null);
             assert.notEqual(body, null);
@@ -38,7 +37,7 @@ describe('Monitoring center tests', function () {
             page: 1,
             perPage: 1
         };
-        oneandone.listMonitorinCentersWithOption(options, function (error, response, body) {
+        oneandone.listMonitoringCentersWithOption(options, function (error, response, body) {
             assert.equal(error, null);
             assert.notEqual(response, null);
             assert.notEqual(body, null);
