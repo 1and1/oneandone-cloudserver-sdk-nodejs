@@ -35,7 +35,9 @@ describe('Role tests', function () {
 
     it('List roles', function (done) {
         oneandone.listRoles(function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -48,10 +50,11 @@ describe('Role tests', function () {
         var options = {
             query: "node"
         };
-
         setTimeout(function () {
             oneandone.listRolesWithOptions(options, function (error, response, body) {
-                assert.equal(error, null);
+                helper.assertNoError(200, response, function (result) {
+                    assert(result);
+                });
                 assert.notEqual(response, null);
                 assert.notEqual(body, null);
                 var object = JSON.parse(body);
@@ -63,7 +66,9 @@ describe('Role tests', function () {
 
     it('Get role', function (done) {
         oneandone.getRole(role.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -79,7 +84,9 @@ describe('Role tests', function () {
             "state": "ACTIVE"
         };
         oneandone.updateRole(role.id, updateRole, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -90,7 +97,9 @@ describe('Role tests', function () {
 
     it('Get role permissions', function (done) {
         oneandone.getRolePermissions(role.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             done();
@@ -119,7 +128,9 @@ describe('Role tests', function () {
             }
         };
         oneandone.updateRolePermissions(role.id, updatePermissions, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             done();
@@ -128,7 +139,9 @@ describe('Role tests', function () {
 
     it('List role users', function (done) {
         oneandone.listRoleUsers(role.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             done();
@@ -136,20 +149,18 @@ describe('Role tests', function () {
     });
 
     it('Add role to users', function (done) {
-
         oneandone.listUsers(function (error, response, body) {
-            assert.equal(error, null);
-            assert.notEqual(response, null);
-            assert.notEqual(body, null);
             var users = JSON.parse(body);
             user = users[0];
             var usersToAdd = {
                 "users": [
-                    user
+                    user.id
                 ]
             };
             oneandone.addUsersToRole(role.id, usersToAdd, function (error, response, body) {
-                assert.equal(error, null);
+                helper.assertNoError(201, response, function (result) {
+                    assert(result);
+                });
                 assert.notEqual(response, null);
                 assert.notEqual(body, null);
                 done();
@@ -159,7 +170,9 @@ describe('Role tests', function () {
 
     it('Get Role User Information', function (done) {
         oneandone.getRoleUser(role.id, user.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             done();
@@ -168,10 +181,12 @@ describe('Role tests', function () {
 
     it('Delete Role User Information', function (done) {
         oneandone.removeRoleFromUser(role.id, user.id, function (error, response, body) {
-            assert.equal(error, null);
-            assert.notEqual(response, null);
-            assert.notEqual(body, null);
-            done();
+            helper.assertNoError(202, response, function (result) {
+                assert(result);
+                assert.notEqual(response, null);
+                assert.notEqual(body, null);
+                done();
+            });
         });
     });
 
@@ -180,7 +195,9 @@ describe('Role tests', function () {
             "name": "node role"
         };
         oneandone.cloneRole(role.id, cloneRoleData, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(201, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             roleClone = JSON.parse(body);

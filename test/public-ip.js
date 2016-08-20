@@ -16,7 +16,9 @@ describe('PublicIps tests', function () {
             "type": oneandone.IPType.IPV4
         };
         oneandone.createPublicIp(publicIpData, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(201, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             publicIp = JSON.parse(body);
             done();
@@ -42,7 +44,9 @@ describe('PublicIps tests', function () {
 
     it('List public ips', function (done) {
         oneandone.listPublicIps(function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -58,7 +62,9 @@ describe('PublicIps tests', function () {
 
         setTimeout(function () {
             oneandone.listPublicIpsWithOptions(options, function (error, response, body) {
-                assert.equal(error, null);
+                helper.assertNoError(200, response, function (result) {
+                    assert(result);
+                });
                 assert.notEqual(response, null);
                 assert.notEqual(body, null);
                 var object = JSON.parse(body);
@@ -70,7 +76,9 @@ describe('PublicIps tests', function () {
 
     it('Get publicIp', function (done) {
         oneandone.getPublicIp(publicIp.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -84,7 +92,9 @@ describe('PublicIps tests', function () {
             "reverse_dns": "example.es"
         };
         oneandone.updatePublicIp(publicIp.id, updateData, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);

@@ -6,23 +6,8 @@ var oneandone = require('../lib/liboneandone');
 var helper = require('../test/testHelper');
 var server = {};
 var firewallPolicy = {};
-var serverData = {
-    "name": "Node firewall policy",
-    "description": "description",
-    "hardware": {
-        "vcore": 2,
-        "cores_per_processor": 1,
-        "ram": 2,
-        "hdds": [
-            {
-                "size": 40,
-                "is_main": true
-            }
-        ]
-    },
-    "appliance_id": "81504C620D98BCEBAA5202D145203B4B",
-    "datacenter_id": "908DC2072407C94C8054610AD5A53B8C"
-};
+var appliance = {};
+var dataCenter = {};
 
 
 describe('Firewall Policy tests', function () {
@@ -30,32 +15,66 @@ describe('Firewall Policy tests', function () {
 
     before(function (done) {
         helper.authenticate(oneandone);
-        oneandone.createServer(serverData, function (error, response, body) {
-            server = JSON.parse(body);
-            var firewallData = {
-                "name": "node firewall policy",
-                "description": "My firewall policy description",
-                "rules": [
-                    {
-                        "protocol": "TCP",
-                        "port_from": 80,
-                        "port_to": 80,
-                        "source": "0.0.0.0"
-                    },
-                    {
-                        "protocol": "TCP",
-                        "port_from": 443,
-                        "port_to": 443,
-                        "source": "0.0.0.0"
-                    }
-                ]
+        var options = {
+            query: "centos"
+        };
+        oneandone.listServerAppliancesWithOptions(options, function (error, response, body) {
+            var res = JSON.parse(body);
+            appliance = res[0];
+            var options = {
+                query: "us"
             };
-            helper.checkServerReady(server, function () {
-                oneandone.createFirewallPolicy(firewallData, function (error, response, body) {
-                    assert.equal(error, null);
-                    assert.notEqual(response, null);
-                    firewallPolicy = JSON.parse(body);
-                    done();
+            oneandone.listDatacentersWithOptions(options, function (error, response, body) {
+                var res1 = JSON.parse(body);
+                dataCenter = res1[0];
+            });
+            var serverData = {
+                "name": "Node firewall policy",
+                "description": "description",
+                "hardware": {
+                    "vcore": 2,
+                    "cores_per_processor": 1,
+                    "ram": 2,
+                    "hdds": [
+                        {
+                            "size": 40,
+                            "is_main": true
+                        }
+                    ]
+                },
+                "appliance_id": appliance.id,
+                "datacenter_id": dataCenter.id
+            };
+
+            oneandone.createServer(serverData, function (error, response, body) {
+                server = JSON.parse(body);
+                var firewallData = {
+                    "name": "node firewall policy",
+                    "description": "My firewall policy description",
+                    "rules": [
+                        {
+                            "protocol": "TCP",
+                            "port_from": 80,
+                            "port_to": 80,
+                            "source": "0.0.0.0"
+                        },
+                        {
+                            "protocol": "TCP",
+                            "port_from": 443,
+                            "port_to": 443,
+                            "source": "0.0.0.0"
+                        }
+                    ]
+                };
+                helper.checkServerReady(server, function () {
+                    oneandone.createFirewallPolicy(firewallData, function (error, response, body) {
+                        helper.assertNoError(202, response, function (result) {
+                            assert(result);
+                        });
+                        assert.notEqual(response, null);
+                        firewallPolicy = JSON.parse(body);
+                        done();
+                    });
                 });
             });
         });
@@ -97,7 +116,9 @@ describe('Firewall Policy tests', function () {
     it('List Firewall Policies', function (done) {
         setTimeout(function () {
             oneandone.listFirewallPolicies(function (error, response, body) {
-                assert.equal(error, null);
+                helper.assertNoError(200, response, function (result) {
+                    assert(result);
+                });
                 assert.notEqual(response, null);
                 assert.notEqual(body, null);
                 var object = JSON.parse(body);
@@ -114,7 +135,9 @@ describe('Firewall Policy tests', function () {
 
         setTimeout(function () {
             oneandone.listFirewallPoliciesWithOptions(options, function (error, response, body) {
-                assert.equal(error, null);
+                helper.assertNoError(200, response, function (result) {
+                    assert(result);
+                });
                 assert.notEqual(response, null);
                 assert.notEqual(body, null);
                 var object = JSON.parse(body);
@@ -126,7 +149,9 @@ describe('Firewall Policy tests', function () {
 
     it('Get Firewall Policy', function (done) {
         oneandone.getFirewallPolicy(firewallPolicy.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -141,7 +166,9 @@ describe('Firewall Policy tests', function () {
             "description": "My Firewall Policy rename"
         };
         oneandone.updateFirewallPolicy(firewallPolicy.id, updateData, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -160,7 +187,9 @@ describe('Firewall Policy tests', function () {
                     ]
                 };
                 oneandone.assignServerIpToFirewallPolicy(firewallPolicy.id, assignData, function (error, response, body) {
-                    assert.equal(error, null);
+                    helper.assertNoError(202, response, function (result) {
+                        assert(result);
+                    });
                     assert.notEqual(response, null);
                     assert.notEqual(body, null);
 
@@ -174,7 +203,9 @@ describe('Firewall Policy tests', function () {
 
     it('List Firewall Policy server ips', function (done) {
         oneandone.listFirewallPolicyServerIps(firewallPolicy.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -185,7 +216,9 @@ describe('Firewall Policy tests', function () {
 
     it('Get Firewall Policy server ip', function (done) {
         oneandone.getFirewallPolicyServerIp(firewallPolicy.id, server.ips[0].id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -196,7 +229,9 @@ describe('Firewall Policy tests', function () {
 
     it('Delete Firewall Policy server ip', function (done) {
         oneandone.unassignServerIpFromFirewallPolicy(firewallPolicy.id, server.ips[0].id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(202, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -218,7 +253,9 @@ describe('Firewall Policy tests', function () {
             ]
         };
         oneandone.addRulesToFirewallPolicy(firewallPolicy.id, ruleData, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(202, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             setTimeout(function () {
@@ -231,7 +268,9 @@ describe('Firewall Policy tests', function () {
 
     it('List Firewall Policy Rules', function (done) {
         oneandone.listFirewallPolicyRules(firewallPolicy.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -242,7 +281,9 @@ describe('Firewall Policy tests', function () {
 
     it('Get Firewall Policy Rule', function (done) {
         oneandone.getFirewallPolicyRule(firewallPolicy.id, firewallPolicy.rules[0].id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             done();
@@ -251,7 +292,9 @@ describe('Firewall Policy tests', function () {
 
     it('Delete Firewall Policy Rule', function (done) {
         oneandone.removeRuleFromFirewallPolicy(firewallPolicy.id, firewallPolicy.rules[0].id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(202, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -260,6 +303,4 @@ describe('Firewall Policy tests', function () {
         });
 
     });
-
-
 });

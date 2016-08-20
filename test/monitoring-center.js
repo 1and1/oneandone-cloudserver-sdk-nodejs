@@ -23,7 +23,9 @@ describe('Monitoring center tests', function () {
 
     it('List Monitoring Centers', function (done) {
         oneandone.listMonitoringCenters(function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -38,7 +40,9 @@ describe('Monitoring center tests', function () {
             perPage: 1
         };
         oneandone.listMonitoringCentersWithOption(options, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -51,7 +55,9 @@ describe('Monitoring center tests', function () {
         var start_date = "2016-19-05T00:05:00Z";
         var end_date = "2016-19-07T00:05:00Z";
         oneandone.getServerMonitoringCenterCustomPeriod(server.id, start_date, end_date, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             done();
@@ -60,7 +66,9 @@ describe('Monitoring center tests', function () {
 
     it('Get FixedPeriod', function (done) {
         oneandone.getServerMonitoringCenterFixedPeriod(server.id, oneandone.PeriodType.LAST_24H, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             done();

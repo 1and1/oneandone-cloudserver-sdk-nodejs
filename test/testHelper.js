@@ -2,9 +2,14 @@
  * Created by Ali on 7/28/2016.
  */
 
-var token = '4f34bcc24bf7bbf6af2fac5e35e600d8';
+var token = 'c4a21f145229f0597d60b0e531cfc69f';
 var oneandone = require('../lib/liboneandone');
 var helper = {};
+var assert = require('assert');
+
+helper.assertNoError = function (expectedStatus, response, callback) {
+    callback(expectedStatus == response.statusCode);
+};
 
 helper.checkServerReady = function (currentServer, callback) {
     var checkServer = {};

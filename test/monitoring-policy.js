@@ -89,7 +89,9 @@ describe('Monitoring policy tests', function () {
     before(function (done) {
         helper.authenticate(oneandone);
         oneandone.createMonitoringPolicy(policyData, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(201, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             policy = JSON.parse(body);
@@ -99,7 +101,9 @@ describe('Monitoring policy tests', function () {
 
     after(function (done) {
         oneandone.deleteMonitoringPolicy(policy.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(202, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             done();
@@ -108,7 +112,9 @@ describe('Monitoring policy tests', function () {
 
     it('List Monitoring Policy', function (done) {
         oneandone.listMonitoringPolicies(function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -123,7 +129,9 @@ describe('Monitoring policy tests', function () {
             perPage: 1
         };
         oneandone.listMonitoringPoliciesWithOptions(options, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -134,7 +142,9 @@ describe('Monitoring policy tests', function () {
 
     it('Get Monitoring Policy', function (done) {
         oneandone.getMonitoringPolicy(policy.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -202,7 +212,9 @@ describe('Monitoring policy tests', function () {
             }
         };
         oneandone.updateMonitoringPolicy(policy.id, updateData, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(202, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -223,7 +235,9 @@ describe('Monitoring policy tests', function () {
             ]
         };
         oneandone.createMonitoringPolicyForPorts(policy.id, portsData, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(202, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -235,7 +249,9 @@ describe('Monitoring policy tests', function () {
 
     it('List Monitoring Policy Ports', function (done) {
         oneandone.listMonitoringPoliciesPorts(policy.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -246,7 +262,9 @@ describe('Monitoring policy tests', function () {
 
     it('Get Monitoring Policy Port', function (done) {
         oneandone.getPortsMonitoringPolicy(policy.id, port.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -265,7 +283,9 @@ describe('Monitoring policy tests', function () {
             }
         };
         oneandone.updatePortsMonitoringPolicy(policy.id, port.id, updatePortData, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(202, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -276,7 +296,9 @@ describe('Monitoring policy tests', function () {
 
     it('Delete Monitoring Policy Port', function (done) {
         oneandone.deletePortsMonitoringPolicy(policy.id, port.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(202, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             done();
@@ -294,7 +316,9 @@ describe('Monitoring policy tests', function () {
             ]
         };
         oneandone.createMonitoringPolicyForProcesses(policy.id, processesData, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(202, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -306,7 +330,9 @@ describe('Monitoring policy tests', function () {
 
     it('List Monitoring Policy Processes', function (done) {
         oneandone.listMonitoringPoliciesProcesses(policy.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -317,7 +343,9 @@ describe('Monitoring policy tests', function () {
 
     it('Get Monitoring Policy Process', function (done) {
         oneandone.getProcessesMonitoringPolicy(policy.id, process.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -335,7 +363,9 @@ describe('Monitoring policy tests', function () {
             }
         };
         oneandone.updateProcessesMonitoringPolicy(policy.id, process.id, updatePortData, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(202, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -346,7 +376,9 @@ describe('Monitoring policy tests', function () {
 
     it('Delete Monitoring Policy Process', function (done) {
         oneandone.deleteProcessesMonitoringPolicy(policy.id, process.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(202, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             done();
@@ -363,7 +395,9 @@ describe('Monitoring policy tests', function () {
                 ]
             };
             oneandone.createMonitoringPolicyForServers(policy.id, serversData, function (error, response, body) {
-                assert.equal(error, null);
+                helper.assertNoError(202, response, function (result) {
+                    assert(result);
+                });
                 assert.notEqual(response, null);
                 assert.notEqual(body, null);
                 var object = JSON.parse(body);
@@ -376,7 +410,9 @@ describe('Monitoring policy tests', function () {
 
     it('List Monitoring Policy Servers', function (done) {
         oneandone.listMonitoringPoliciesServers(policy.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -387,7 +423,9 @@ describe('Monitoring policy tests', function () {
 
     it('Get Monitoring Policy Server', function (done) {
         oneandone.getServersMonitoringPolicy(policy.id, server.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -399,7 +437,9 @@ describe('Monitoring policy tests', function () {
 
     it('Delete Monitoring Policy Server', function (done) {
         oneandone.deleteServersMonitoringPolicy(policy.id, server.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(202, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             done();

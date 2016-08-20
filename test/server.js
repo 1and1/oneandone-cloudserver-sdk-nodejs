@@ -10,27 +10,8 @@ var fixedInstaceserver = {};
 var hardwareFlavour = {};
 var currentHdd = {};
 var currentImage = {};
-var serverData = {
-    "name": "Node Server",
-    "description": "description",
-    "hardware": {
-        "vcore": 2,
-        "cores_per_processor": 1,
-        "ram": 2,
-        "hdds": [
-            {
-                "size": 40,
-                "is_main": true
-            },
-            {
-                "size": 20,
-                "is_main": false
-            }
-        ]
-    },
-    "appliance_id": "81504C620D98BCEBAA5202D145203B4B",
-    "datacenter_id": "908DC2072407C94C8054610AD5A53B8C"
-};
+var appliance = {};
+var dataCenter = {};
 
 
 describe('Server tests', function () {
@@ -38,26 +19,59 @@ describe('Server tests', function () {
 
     before(function (done) {
         helper.authenticate(oneandone);
-        oneandone.createServer(serverData, function (error, response, body) {
-            assert.equal(error, null);
-            server = JSON.parse(body);
-            assert.notEqual(response, null);
-            assert.notEqual(body, null);
-            assert.equal(server.name, serverData.name)
-            done();
-        });
-        //oneandone.getServer("AF9EDF25297C77CCA0675A0BCDC9E22A", function (error, response, body) {
-        //    server = JSON.parse(body);
-        //    done();
-        //});
+        oneandone.listServerAppliancesWithOptions(options, function (error, response, body) {
+            var res = JSON.parse(body);
+            appliance = res[0];
+            var options = {
+                query: "us"
+            };
+            oneandone.listDatacentersWithOptions(options, function (error, response, body) {
+                var res1 = JSON.parse(body);
+                dataCenter = res1[0];
+                var serverData = {
+                    "name": "Node Server",
+                    "description": "description",
+                    "hardware": {
+                        "vcore": 2,
+                        "cores_per_processor": 1,
+                        "ram": 2,
+                        "hdds": [
+                            {
+                                "size": 40,
+                                "is_main": true
+                            },
+                            {
+                                "size": 20,
+                                "is_main": false
+                            }
+                        ]
+                    },
+                    "appliance_id": appliance.id,
+                    "datacenter_id": dataCenter.id
+                };
+                oneandone.createServer(serverData, function (error, response, body) {
+                    helper.assertNoError(202, response, function (result) {
+                        assert(result);
+                    });
+                    assert.equal(error, null);
+                    server = JSON.parse(body);
+                    assert.notEqual(response, null);
+                    assert.notEqual(body, null);
+                    assert.equal(server.name, serverData.name)
+                    done();
+                });
+            });
 
+        });
     });
 
     removeServer = function (serverToRemove, callback) {
         if (serverToRemove.id) {
             helper.checkServerReady(serverToRemove, function () {
                 oneandone.deleteServer(serverToRemove.id, function (error, response, body) {
-                    assert.equal(error, null);
+                    helper.assertNoError(202, response, function (result) {
+                        assert(result);
+                    });
                     callback();
                 });
             });
@@ -81,26 +95,26 @@ describe('Server tests', function () {
             "hardware": {
                 "fixed_instance_size_id": "65929629F35BBFBA63022008F773F3EB"
             },
-            "appliance_id": "81504C620D98BCEBAA5202D145203B4B",
-            "datacenter_id": "908DC2072407C94C8054610AD5A53B8C"
+            "appliance_id": appliance.id,
+            "datacenter_id": dataCenter.id
         };
         oneandone.createServer(fixedInstace, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(202, response, function (result) {
+                assert(result);
+            });
             fixedInstaceserver = JSON.parse(body);
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             assert.equal(fixedInstaceserver.name, fixedInstace.name)
             done();
         });
-        //oneandone.getServer("1B57666721312AF7DAEFE193AB864F50", function (error, response, body) {
-        //    fixedInstaceserver = JSON.parse(body);
-        //    done();
-        //});
     });
 
     it('List servers', function (done) {
         oneandone.listServers(function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -114,7 +128,9 @@ describe('Server tests', function () {
             query: "node"
         };
         oneandone.listServersWithOptions(options, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -125,7 +141,9 @@ describe('Server tests', function () {
 
     it('List Server Flavours', function (done) {
         oneandone.listHardwareFlavours(function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -137,7 +155,9 @@ describe('Server tests', function () {
 
     it('Get Server Flavour', function (done) {
         oneandone.getHardwareFlavour(hardwareFlavour.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             done();
@@ -146,7 +166,9 @@ describe('Server tests', function () {
 
     it('Get server status', function (done) {
         oneandone.getServerStatus(server.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             done();
@@ -155,7 +177,9 @@ describe('Server tests', function () {
 
     it('Get server', function (done) {
         oneandone.getServer(server.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -173,7 +197,9 @@ describe('Server tests', function () {
         };
         helper.checkServerReady(server, function () {
             oneandone.updateServer(server.id, updateData, function (error, response, body) {
-                assert.equal(error, null);
+                helper.assertNoError(200, response, function (result) {
+                    assert(result);
+                });
                 assert.notEqual(response, null);
                 assert.notEqual(body, null);
                 var object = JSON.parse(body);
@@ -193,7 +219,9 @@ describe('Server tests', function () {
         };
         helper.checkServerReady(server, function () {
             oneandone.updateServerStatus(server.id, updateData, function (error, response, body) {
-                assert.equal(error, null);
+                helper.assertNoError(202, response, function (result) {
+                    assert(result);
+                });
                 assert.notEqual(response, null);
                 assert.notEqual(body, null);
                 var object = JSON.parse(body);
@@ -205,7 +233,9 @@ describe('Server tests', function () {
 
     it('Get Server Hardware', function (done) {
         oneandone.getHardware(server.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             done();
@@ -221,7 +251,9 @@ describe('Server tests', function () {
         helper.turnOffServer(server, function () {
             helper.checkServerReady(server, function () {
                 oneandone.updateHardware(server.id, updateHardwareData, function (error, response, body) {
-                    assert.equal(error, null);
+                    helper.assertNoError(202, response, function (result) {
+                        assert(result);
+                    });
                     assert.notEqual(response, null);
                     assert.notEqual(body, null);
                     var object = JSON.parse(body);
@@ -235,7 +267,9 @@ describe('Server tests', function () {
     it('List Servers HDDs ', function (done) {
         helper.checkServerReady(server, function () {
             oneandone.listHdds(server.id, function (error, response, body) {
-                assert.equal(error, null);
+                helper.assertNoError(200, response, function (result) {
+                    assert(result);
+                });
                 assert.notEqual(body, null);
                 var object = JSON.parse(body);
                 assert(object.length > 0);
@@ -256,7 +290,9 @@ describe('Server tests', function () {
         };
         helper.checkServerReady(server, function () {
             oneandone.addHdd(server.id, hddData, function (error, response, body) {
-                assert.equal(error, null);
+                helper.assertNoError(202, response, function (result) {
+                    assert(result);
+                });
                 var hdds = JSON.parse(body);
                 //give time for the Hdd to be added
                 helper.checkServerReady(server, function () {
@@ -271,7 +307,9 @@ describe('Server tests', function () {
 
     it('Get Server specific Hdd', function (done) {
         oneandone.getHdd(server.id, currentHdd.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             done();
@@ -284,7 +322,9 @@ describe('Server tests', function () {
         };
         helper.checkServerReady(server, function () {
             oneandone.updateHdd(server.id, currentHdd.id, updateData, function (error, response, body) {
-                assert.equal(error, null);
+                helper.assertNoError(202, response, function (result) {
+                    assert(result);
+                });
                 assert.notEqual(response, null);
                 assert.notEqual(body, null);
                 var object = JSON.parse(body);
@@ -308,7 +348,9 @@ describe('Server tests', function () {
                 }
                 if (hddToDelete) {
                     oneandone.deleteHdd(server.id, hddToDelete.id, function (error, response, body) {
-                        assert.equal(error, null);
+                        helper.assertNoError(202, response, function (result) {
+                            assert(result);
+                        });
                         assert.notEqual(response, null);
                         assert.notEqual(body, null);
                         var object = JSON.parse(body);
@@ -322,13 +364,17 @@ describe('Server tests', function () {
     });
 
     it('Get Server Image', function (done) {
-        oneandone.getImage(fixedInstaceserver.id, function (error, response, body) {
-            assert.equal(error, null);
-            assert.notEqual(response, null);
-            assert.notEqual(body, null);
-            var object = JSON.parse(body);
-            currentImage = object;
-            done();
+        helper.checkServerReady(fixedInstaceserver, function () {
+            oneandone.getServerImage(fixedInstaceserver.id, function (error, response, body) {
+                helper.assertNoError(200, response, function (result) {
+                    assert(result);
+                });
+                assert.notEqual(response, null);
+                assert.notEqual(body, null);
+                var object = JSON.parse(body);
+                currentImage = object;
+                done();
+            });
         });
     });
 
@@ -337,9 +383,11 @@ describe('Server tests', function () {
             "id": currentImage.id,
             "password": "Test123!"
         };
-        helper.checkServerReady(server, function () {
-            oneandone.updateImage(fixedInstaceserver.id, updateData, function (error, response, body) {
-                assert.equal(error, null);
+        helper.checkServerReady(fixedInstaceserver, function () {
+            oneandone.updateServerImage(fixedInstaceserver.id, updateData, function (error, response, body) {
+                helper.assertNoError(202, response, function (result) {
+                    assert(result);
+                });
                 assert.notEqual(response, null);
                 assert.notEqual(body, null);
                 var object = JSON.parse(body);

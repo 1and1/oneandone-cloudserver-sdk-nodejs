@@ -6,7 +6,6 @@ var oneandone = require('../lib/liboneandone');
 var helper = require('../test/testHelper');
 var vpn = {};
 
-
 describe('Vpns tests', function () {
     this.timeout(900000);
 
@@ -17,7 +16,9 @@ describe('Vpns tests', function () {
             "description": "My VPN description"
         };
         oneandone.createVpn(vpnData, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(202, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             vpn = JSON.parse(body);
             done();
@@ -43,7 +44,9 @@ describe('Vpns tests', function () {
 
     it('List vpns', function (done) {
         oneandone.listVpns(function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -59,7 +62,9 @@ describe('Vpns tests', function () {
 
         setTimeout(function () {
             oneandone.listVpnsWithOptions(options, function (error, response, body) {
-                assert.equal(error, null);
+                helper.assertNoError(200, response, function (result) {
+                    assert(result);
+                });
                 assert.notEqual(response, null);
                 assert.notEqual(body, null);
                 var object = JSON.parse(body);
@@ -71,7 +76,9 @@ describe('Vpns tests', function () {
 
     it('Get vpn', function (done) {
         oneandone.getVpn(vpn.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -81,12 +88,16 @@ describe('Vpns tests', function () {
     });
 
     it('Get vpn configuration file', function (done) {
-        oneandone.getConfigurationFile(vpn.id, function (error, response, body) {
-            assert.equal(error, null);
-            assert.notEqual(response, null);
-            assert.notEqual(body, null);
-            done();
-        });
+        setTimeout(function () {
+            oneandone.getConfigurationFile(vpn.id, function (error, response, body) {
+                helper.assertNoError(200, response, function (result) {
+                    assert(result);
+                });
+                assert.notEqual(response, null);
+                assert.notEqual(body, null);
+                done();
+            });
+        }, 8000);
     });
 
     it('Update vpn', function (done) {
@@ -95,7 +106,9 @@ describe('Vpns tests', function () {
             "description": "node VPN rename description"
         };
         oneandone.updateVpn(vpn.id, updateData, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);

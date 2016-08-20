@@ -7,23 +7,8 @@ var oneandone = require('../lib/liboneandone');
 var helper = require('../test/testHelper');
 var server = {};
 var sharedStorage = {};
-var serverData = {
-    "name": "Node sharedStorage",
-    "description": "description",
-    "hardware": {
-        "vcore": 2,
-        "cores_per_processor": 1,
-        "ram": 2,
-        "hdds": [
-            {
-                "size": 40,
-                "is_main": true
-            }
-        ]
-    },
-    "appliance_id": "81504C620D98BCEBAA5202D145203B4B",
-    "datacenter_id": "908DC2072407C94C8054610AD5A53B8C"
-};
+var appliance = {};
+var dataCenter = {};
 
 
 describe('Shared Storage tests', function () {
@@ -31,19 +16,52 @@ describe('Shared Storage tests', function () {
 
     before(function (done) {
         helper.authenticate(oneandone);
-        oneandone.createServer(serverData, function (error, response, body) {
-            server = JSON.parse(body);
-            var storageData = {
-                "name": "Node storage test",
-                "description": "My shared storage test description",
-                "size": 50
+        var options = {
+            query: "centos"
+        };
+        oneandone.listServerAppliancesWithOptions(options, function (error, response, body) {
+            var res = JSON.parse(body);
+            appliance = res[0];
+            var options = {
+                query: "us"
             };
-            helper.checkServerReady(server, function () {
-                oneandone.createSharedStorage(storageData, function (error, response, body) {
-                    assert.equal(error, null);
-                    assert.notEqual(response, null);
-                    sharedStorage = JSON.parse(body);
-                    done();
+            oneandone.listDatacentersWithOptions(options, function (error, response, body) {
+                var res1 = JSON.parse(body);
+                dataCenter = res1[0];
+            });
+            var serverData = {
+                "name": "Node sharedStorage",
+                "description": "description",
+                "hardware": {
+                    "vcore": 2,
+                    "cores_per_processor": 1,
+                    "ram": 2,
+                    "hdds": [
+                        {
+                            "size": 40,
+                            "is_main": true
+                        }
+                    ]
+                },
+                "appliance_id": appliance.id,
+                "datacenter_id": dataCenter.id
+            };
+            oneandone.createServer(serverData, function (error, response, body) {
+                server = JSON.parse(body);
+                var storageData = {
+                    "name": "Node storage test",
+                    "description": "My shared storage test description",
+                    "size": 50
+                };
+                helper.checkServerReady(server, function () {
+                    oneandone.createSharedStorage(storageData, function (error, response, body) {
+                        helper.assertNoError(202, response, function (result) {
+                            assert(result);
+                        });
+                        assert.notEqual(response, null);
+                        sharedStorage = JSON.parse(body);
+                        done();
+                    });
                 });
             });
         });
@@ -85,7 +103,9 @@ describe('Shared Storage tests', function () {
     it('List Shared Storages', function (done) {
         setTimeout(function () {
             oneandone.listSharedStorages(function (error, response, body) {
-                assert.equal(error, null);
+                helper.assertNoError(200, response, function (result) {
+                    assert(result);
+                });
                 assert.notEqual(response, null);
                 assert.notEqual(body, null);
                 var object = JSON.parse(body);
@@ -102,7 +122,9 @@ describe('Shared Storage tests', function () {
 
         setTimeout(function () {
             oneandone.listSharedStoragesWithOptions(options, function (error, response, body) {
-                assert.equal(error, null);
+                helper.assertNoError(200, response, function (result) {
+                    assert(result);
+                });
                 assert.notEqual(response, null);
                 assert.notEqual(body, null);
                 var object = JSON.parse(body);
@@ -114,7 +136,9 @@ describe('Shared Storage tests', function () {
 
     it('Get Shared Storage', function (done) {
         oneandone.getSharedStorage(sharedStorage.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -129,7 +153,9 @@ describe('Shared Storage tests', function () {
             "description": "My shared storage rename"
         };
         oneandone.updateSharedStorage(sharedStorage.id, updateData, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(202, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -147,7 +173,9 @@ describe('Shared Storage tests', function () {
             ]
         };
         oneandone.attachServerToSharedStorage(sharedStorage.id, attachData, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(202, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             setTimeout(function () {
@@ -158,7 +186,9 @@ describe('Shared Storage tests', function () {
 
     it('List Shared Storage Servers', function (done) {
         oneandone.listSharedStorageServers(sharedStorage.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -169,7 +199,9 @@ describe('Shared Storage tests', function () {
 
     it('Get Shared Storage Server', function (done) {
         oneandone.getSharedStorageServer(sharedStorage.id, server.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -180,7 +212,9 @@ describe('Shared Storage tests', function () {
 
     it('Delete Shared Storage Server', function (done) {
         oneandone.detachServerFromSharedStorage(sharedStorage.id, server.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(202, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -192,7 +226,9 @@ describe('Shared Storage tests', function () {
 
     it('List Access Credentials', function (done) {
         oneandone.getAccessCredentials(function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -206,7 +242,9 @@ describe('Shared Storage tests', function () {
             "password": "Test123!"
         };
         oneandone.changePassword(updateData, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(202, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);

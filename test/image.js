@@ -6,49 +6,67 @@ var oneandone = require('../lib/liboneandone');
 var helper = require('../test/testHelper');
 var server = {};
 var image = {};
-var serverData = {
-    "name": "Node Image Server",
-    "description": "description",
-    "hardware": {
-        "vcore": 2,
-        "cores_per_processor": 1,
-        "ram": 2,
-        "hdds": [
-            {
-                "size": 40,
-                "is_main": true
-            },
-            {
-                "size": 20,
-                "is_main": false
-            }
-        ]
-    },
-    "appliance_id": "81504C620D98BCEBAA5202D145203B4B",
-    "datacenter_id": "908DC2072407C94C8054610AD5A53B8C"
-};
-
+var appliance = {};
+var dataCenter = {};
 
 describe('Images tests', function () {
     this.timeout(900000);
 
     before(function (done) {
         helper.authenticate(oneandone);
-        oneandone.createServer(serverData, function (error, response, body) {
-            server = JSON.parse(body);
-            var imageData = {
-                "server_id": server.id,
-                "name": "node image",
-                "description": "My image description",
-                "frequency": oneandone.ImageFrequency.WEEKLY,
-                "num_images": 1
+        var options = {
+            query: "centos"
+        };
+        oneandone.listServerAppliancesWithOptions(options, function (error, response, body) {
+            var res = JSON.parse(body);
+            appliance = res[0];
+            var options = {
+                query: "us"
             };
-            helper.checkServerReady(server, function () {
-                oneandone.createImage(imageData, function (error, response, body) {
-                    assert.equal(error, null);
-                    assert.notEqual(response, null);
-                    image = JSON.parse(body);
-                    done();
+            oneandone.listDatacentersWithOptions(options, function (error, response, body) {
+                var res1 = JSON.parse(body);
+                dataCenter = res1[0];
+            });
+            var serverData = {
+                "name": "Node Image Server",
+                "description": "description",
+                "hardware": {
+                    "vcore": 2,
+                    "cores_per_processor": 1,
+                    "ram": 2,
+                    "hdds": [
+                        {
+                            "size": 40,
+                            "is_main": true
+                        },
+                        {
+                            "size": 20,
+                            "is_main": false
+                        }
+                    ]
+                },
+                "appliance_id": appliance.id,
+                "datacenter_id": dataCenter.id
+            };
+
+            oneandone.createServer(serverData, function (error, response, body) {
+                server = JSON.parse(body);
+                var imageData = {
+                    "server_id": server.id,
+                    "name": "node image",
+                    "description": "My image description",
+                    "frequency": oneandone.ImageFrequency.WEEKLY,
+                    "num_images": 1
+                };
+                helper.checkServerReady(server, function () {
+                    oneandone.createImage(imageData, function (error, response, body) {
+                        helper.assertNoError(202, response, function (result) {
+                            assert(result);
+                        });
+                        assert.notEqual(response, null);
+                        image = JSON.parse(body);
+                        done();
+                    });
                 });
             });
         });
@@ -89,7 +107,9 @@ describe('Images tests', function () {
 
     it('List images', function (done) {
         oneandone.listImages(function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -105,7 +125,9 @@ describe('Images tests', function () {
 
         setTimeout(function () {
             oneandone.listImagesWithOptions(options, function (error, response, body) {
-                assert.equal(error, null);
+                helper.assertNoError(200, response, function (result) {
+                    assert(result);
+                });
                 assert.notEqual(response, null);
                 assert.notEqual(body, null);
                 var object = JSON.parse(body);
@@ -117,7 +139,9 @@ describe('Images tests', function () {
 
     it('Get image', function (done) {
         oneandone.getImage(image.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -133,7 +157,9 @@ describe('Images tests', function () {
             "frequency": oneandone.ImageFrequency.ONCE
         };
         oneandone.updateImage(image.id, updateData, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);

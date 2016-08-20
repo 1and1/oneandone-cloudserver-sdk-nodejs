@@ -1,7 +1,6 @@
 /**
  * Created by Ali on 8/1/2016.
  */
-
 var assert = require('assert');
 var oneandone = require('../lib/liboneandone');
 var helper = require('../test/testHelper');
@@ -9,41 +8,58 @@ var server = {};
 var currentIp = {};
 var firewallPolicy = {};
 var loadBalancer = {};
-
-var serverData = {
-    "name": "Node Server network test",
-    "description": "description",
-    "hardware": {
-        "vcore": 2,
-        "cores_per_processor": 1,
-        "ram": 2,
-        "hdds": [
-            {
-                "size": 40,
-                "is_main": true
-            },
-            {
-                "size": 20,
-                "is_main": false
-            }
-        ]
-    },
-    "appliance_id": "81504C620D98BCEBAA5202D145203B4B",
-    "datacenter_id": "908DC2072407C94C8054610AD5A53B8C"
-};
+var appliance = {};
+var dataCenter = {};
 
 describe('Server Network tests', function () {
     this.timeout(900000);
 
     before(function (done) {
         helper.authenticate(oneandone);
-        oneandone.createServer(serverData, function (error, response, body) {
-            assert.equal(error, null);
-            server = JSON.parse(body);
-            assert.notEqual(response, null);
-            assert.notEqual(body, null);
-            assert.equal(server.name, serverData.name)
-            done();
+        var options = {
+            query: "centos"
+        };
+        oneandone.listServerAppliancesWithOptions(options, function (error, response, body) {
+            var res = JSON.parse(body);
+            appliance = res[0];
+            var options = {
+                query: "us"
+            };
+            oneandone.listDatacentersWithOptions(options, function (error, response, body) {
+                var res1 = JSON.parse(body);
+                dataCenter = res1[0];
+                var serverData = {
+                    "name": "Node Server network test2",
+                    "description": "description",
+                    "hardware": {
+                        "vcore": 2,
+                        "cores_per_processor": 1,
+                        "ram": 2,
+                        "hdds": [
+                            {
+                                "size": 40,
+                                "is_main": true
+                            },
+                            {
+                                "size": 20,
+                                "is_main": false
+                            }
+                        ]
+                    },
+                    "appliance_id": appliance.id,
+                    "datacenter_id": dataCenter.id
+                };
+                oneandone.createServer(serverData, function (error, response, body) {
+                    helper.assertNoError(202, response, function (result) {
+                        assert(result);
+                    });
+                    server = JSON.parse(body);
+                    assert.notEqual(response, null);
+                    assert.notEqual(body, null);
+                    assert.equal(server.name, serverData.name)
+                    done();
+                });
+            });
         });
     });
 
@@ -51,7 +67,9 @@ describe('Server Network tests', function () {
         if (serverToRemove.id) {
             helper.checkServerReady(serverToRemove, function () {
                 oneandone.deleteServer(serverToRemove.id, function (error, response, body) {
-                    assert.equal(error, null);
+                    helper.assertNoError(202, response, function (result) {
+                        assert(result);
+                    });
                     callback();
                 });
             });
@@ -65,7 +83,9 @@ describe('Server Network tests', function () {
         if (serverToRemove.id && ip_id) {
             helper.checkServerReady(serverToRemove, function () {
                 oneandone.deleteIp(serverToRemove.id, ip_id, function (error, response, body) {
-                    assert.equal(error, null);
+                    helper.assertNoError(202, response, function (result) {
+                        assert(result);
+                    });
                     callback();
                 });
             });
@@ -86,7 +106,9 @@ describe('Server Network tests', function () {
         };
         helper.checkServerReady(server, function () {
             oneandone.addIp(server.id, ipData, function (error, response, body) {
-                assert.equal(error, null);
+                helper.assertNoError(201, response, function (result) {
+                    assert(result);
+                });
                 var result = JSON.parse(body);
                 helper.checkServerReady(server, function () {
                     assert.notEqual(response, null);
@@ -100,7 +122,9 @@ describe('Server Network tests', function () {
 
     it('List servers Ips', function (done) {
         oneandone.listIps(server.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -112,7 +136,9 @@ describe('Server Network tests', function () {
 
     it('Get servers Ip', function (done) {
         oneandone.getIp(server.id, currentIp.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -122,25 +148,32 @@ describe('Server Network tests', function () {
     });
 
     it('Add Firewall Policy to an IP', function (done) {
-        //todo: replace with real data
-        firewallPolicyData = {
-            "id": "34A7E423DA3253E6D38563ED06F1041F"
-        };
         helper.checkServerReady(server, function () {
-            oneandone.addFirewallPolicy(server.id, currentIp.id, firewallPolicyData, function (error, response, body) {
-                helper.checkServerReady(server, function () {
-                    assert.equal(error, null);
-                    assert.notEqual(body, null);
-                    done();
+            oneandone.listFirewallPolicies(function (fpError, fpResponse, fpBody) {
+                var object = JSON.parse(fpBody);
+                firewallPolicyData = {
+                    "id": object[0].id
+                };
+                oneandone.addFirewallPolicy(server.id, currentIp.id, firewallPolicyData, function (error, response, body) {
+                    helper.checkServerReady(server, function () {
+                        helper.assertNoError(202, response, function (result) {
+                            assert(result);
+                        });
+                        assert.notEqual(body, null);
+                        done();
+                    });
                 });
             });
+
         });
     });
 
     it('List ip FirewallPolicies', function (done) {
         helper.checkServerReady(server, function () {
             oneandone.listIpFirewallPolicies(server.id, currentIp.id, function (error, response, body) {
-                assert.equal(error, null);
+                helper.assertNoError(200, response, function (result) {
+                    assert(result);
+                });
                 assert.notEqual(body, null);
                 var object = JSON.parse(body);
                 if (Array.isArray(object)) {
@@ -157,7 +190,9 @@ describe('Server Network tests', function () {
     it('Remove Firewall Policy from  an IP', function (done) {
         helper.checkServerReady(server, function () {
             oneandone.deleteIpFirewallPolicy(server.id, currentIp.id, function (error, response, body) {
-                assert.equal(error, null);
+                helper.assertNoError(202, response, function (result) {
+                    assert(result);
+                });
                 assert.notEqual(response, null);
                 assert.notEqual(body, null);
                 done();
@@ -167,24 +202,30 @@ describe('Server Network tests', function () {
     });
 
     it('Add LoadBalancer to an IP', function (done) {
-        loadBalancerData = {
-            "load_balancer_id": "13C3F75BA55AF28B8B2B4E508786F48B"
-        };
-        helper.checkServerReady(server, function () {
-            oneandone.addIpLoadBalancer(server.id, currentIp.id, loadBalancerData, function (error, response, body) {
-                helper.checkServerReady(server, function () {
-                    assert.equal(error, null);
+        oneandone.listLoadBalancers(function (lbError, lbResponse, lbBody) {
+            var loadBalancerId = JSON.parse(lbBody);
+            loadBalancerData = {
+                "load_balancer_id": loadBalancerId[0].id
+            };
+            helper.checkServerReady(server, function () {
+                oneandone.addIpLoadBalancer(server.id, currentIp.id, loadBalancerData, function (error, response, body) {
+                    helper.assertNoError(202, response, function (result) {
+                        assert(result);
+                    });
                     assert.notEqual(body, null);
                     done();
                 });
             });
         });
+
     });
 
     it('List ip Load Balancers', function (done) {
         helper.checkServerReady(server, function () {
             oneandone.listIpLoadBalancer(server.id, currentIp.id, function (error, response, body) {
-                assert.equal(error, null);
+                helper.assertNoError(200, response, function (result) {
+                    assert(result);
+                });
                 assert.notEqual(body, null);
                 var object = JSON.parse(body);
                 assert(object.length > 0);
@@ -197,14 +238,13 @@ describe('Server Network tests', function () {
     it('Remove Load Balancers from  an IP', function (done) {
         helper.checkServerReady(server, function () {
             oneandone.deleteIpLoadBalancer(server.id, currentIp.id, loadBalancer.id, function (error, response, body) {
-                assert.equal(error, null);
+                helper.assertNoError(202, response, function (result) {
+                    assert(result);
+                });
                 assert.notEqual(response, null);
                 assert.notEqual(body, null);
                 done();
             });
         });
-
     });
-
-
 });

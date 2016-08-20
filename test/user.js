@@ -43,7 +43,9 @@ describe('Users tests', function () {
 
     it('List users', function (done) {
         oneandone.listUsers(function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -59,10 +61,13 @@ describe('Users tests', function () {
 
         setTimeout(function () {
             oneandone.listUsersWithOptions(options, function (error, response, body) {
-                assert.equal(error, null);
+                helper.assertNoError(200, response, function (result) {
+                    assert(result);
+                });
                 assert.notEqual(response, null);
                 assert.notEqual(body, null);
                 var object = JSON.parse(body);
+                user = object[0];
                 assert(object.length > 0);
                 done();
             });
@@ -71,7 +76,9 @@ describe('Users tests', function () {
 
     it('Get user', function (done) {
         oneandone.getUser(user.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -100,7 +107,9 @@ describe('Users tests', function () {
 
     it('Get user API information', function (done) {
         oneandone.getUserApiInformation(user.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             done();
@@ -112,7 +121,9 @@ describe('Users tests', function () {
             "active": true
         };
         oneandone.updateUserApiInformation(user.id, updateApi, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             done();
@@ -121,7 +132,9 @@ describe('Users tests', function () {
 
     it('Get user API Key', function (done) {
         oneandone.getUserApiKey(user.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             done();
@@ -131,7 +144,9 @@ describe('Users tests', function () {
     it('Update user API Key', function (done) {
         //this will change the API key remove the commented code below to try it
         //oneandone.updateUserApiKey(user.id, function (error, response, body) {
-        //    assert.equal(error, null);
+        //      helper.assertNoError(200, response, function (result) {
+        //    assert(result);
+        //});
         //    assert.notEqual(response, null);
         //    assert.notEqual(body, null);
         //    done();
@@ -141,7 +156,9 @@ describe('Users tests', function () {
 
     it('Get user API allowed IPs', function (done) {
         oneandone.getUserApiAllowedIPs(user.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             done();
@@ -177,7 +194,9 @@ describe('Users tests', function () {
 
     it('Get user API allowed IPs', function (done) {
         oneandone.getCurrentUserPermissions(function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             done();

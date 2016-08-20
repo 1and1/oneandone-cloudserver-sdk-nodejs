@@ -20,7 +20,9 @@ describe('Monitoring center tests', function () {
             page: 1
         };
         oneandone.listLogsFixedPeriodWithOptions(oneandone.PeriodType.LAST_7D, options, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -33,7 +35,9 @@ describe('Monitoring center tests', function () {
         var start_date = "2015-19-05T00:05:00Z";
         var end_date = "2016-19-07T00:05:00Z";
         oneandone.listLogsCustomPeriodWithOptions(start_date, end_date, null, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -44,7 +48,9 @@ describe('Monitoring center tests', function () {
 
     it('Get Log', function (done) {
         oneandone.getLog(log.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             done();

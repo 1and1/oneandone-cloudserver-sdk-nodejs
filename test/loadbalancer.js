@@ -7,23 +7,8 @@ var oneandone = require('../lib/liboneandone');
 var helper = require('../test/testHelper');
 var server = {};
 var loadBalancer = {};
-var serverData = {
-    "name": "Node loadbalancer ",
-    "description": "description",
-    "hardware": {
-        "vcore": 2,
-        "cores_per_processor": 1,
-        "ram": 2,
-        "hdds": [
-            {
-                "size": 40,
-                "is_main": true
-            }
-        ]
-    },
-    "appliance_id": "81504C620D98BCEBAA5202D145203B4B",
-    "datacenter_id": "908DC2072407C94C8054610AD5A53B8C"
-};
+var appliance = {};
+var dataCenter = {};
 
 
 describe('LoadBalancer tests', function () {
@@ -31,39 +16,72 @@ describe('LoadBalancer tests', function () {
 
     before(function (done) {
         helper.authenticate(oneandone);
-        oneandone.createServer(serverData, function (error, response, body) {
-            server = JSON.parse(body);
-            var balancerData = {
-                "name": "node balancer",
-                "description": "My load balancer description",
-                "health_check_test": oneandone.HealthCheckTestTypes.TCP,
-                "health_check_interval": 1,
-                "health_check_path": "path",
-                "health_check_parser": null,
-                "persistence": true,
-                "persistence_time": 200,
-                "method": oneandone.LoadBalancerMethod.ROUND_ROBIN,
-                "rules": [
-                    {
-                        "protocol": "TCP",
-                        "port_balancer": 80,
-                        "port_server": 80,
-                        "source": "0.0.0.0"
-                    },
-                    {
-                        "protocol": "TCP",
-                        "port_balancer": 9999,
-                        "port_server": 8888,
-                        "source": "0.0.0.0"
-                    }
-                ]
+        var options = {
+            query: "centos"
+        };
+        oneandone.listServerAppliancesWithOptions(options, function (error, response, body) {
+            var res = JSON.parse(body);
+            appliance = res[0];
+            var options = {
+                query: "us"
             };
-            helper.checkServerReady(server, function () {
-                oneandone.createLoadBalancer(balancerData, function (error, response, body) {
-                    assert.equal(error, null);
-                    assert.notEqual(response, null);
-                    loadBalancer = JSON.parse(body);
-                    done();
+            oneandone.listDatacentersWithOptions(options, function (error, response, body) {
+                var res1 = JSON.parse(body);
+                dataCenter = res1[0];
+            });
+            var serverData = {
+                "name": "Node loadbalancer 1",
+                "description": "description",
+                "hardware": {
+                    "vcore": 2,
+                    "cores_per_processor": 1,
+                    "ram": 2,
+                    "hdds": [
+                        {
+                            "size": 40,
+                            "is_main": true
+                        }
+                    ]
+                },
+                "appliance_id": appliance.id,
+                "datacenter_id": dataCenter.id
+            };
+            oneandone.createServer(serverData, function (error, response, body) {
+                server = JSON.parse(body);
+                var balancerData = {
+                    "name": "node balancer",
+                    "description": "My load balancer description",
+                    "health_check_test": oneandone.HealthCheckTestTypes.TCP,
+                    "health_check_interval": 1,
+                    "health_check_path": "path",
+                    "health_check_parser": null,
+                    "persistence": true,
+                    "persistence_time": 200,
+                    "method": oneandone.LoadBalancerMethod.ROUND_ROBIN,
+                    "rules": [
+                        {
+                            "protocol": "TCP",
+                            "port_balancer": 80,
+                            "port_server": 80,
+                            "source": "0.0.0.0"
+                        },
+                        {
+                            "protocol": "TCP",
+                            "port_balancer": 9999,
+                            "port_server": 8888,
+                            "source": "0.0.0.0"
+                        }
+                    ]
+                };
+                helper.checkServerReady(server, function () {
+                    oneandone.createLoadBalancer(balancerData, function (error, response, body) {
+                        helper.assertNoError(202, response, function (result) {
+                            assert(result);
+                        });
+                        assert.notEqual(response, null);
+                        loadBalancer = JSON.parse(body);
+                        done();
+                    });
                 });
             });
         });
@@ -105,7 +123,9 @@ describe('LoadBalancer tests', function () {
     it('List Load Balancers', function (done) {
         setTimeout(function () {
             oneandone.listLoadBalancers(function (error, response, body) {
-                assert.equal(error, null);
+                helper.assertNoError(200, response, function (result) {
+                    assert(result);
+                });
                 assert.notEqual(response, null);
                 assert.notEqual(body, null);
                 var object = JSON.parse(body);
@@ -121,7 +141,9 @@ describe('LoadBalancer tests', function () {
         };
         setTimeout(function () {
             oneandone.listLoadBalancersWithOptions(options, function (error, response, body) {
-                assert.equal(error, null);
+                helper.assertNoError(200, response, function (result) {
+                    assert(result);
+                });
                 assert.notEqual(response, null);
                 assert.notEqual(body, null);
                 var object = JSON.parse(body);
@@ -133,7 +155,9 @@ describe('LoadBalancer tests', function () {
 
     it('Get Load Balancer', function (done) {
         oneandone.getLoadBalancer(loadBalancer.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -153,7 +177,9 @@ describe('LoadBalancer tests', function () {
             "method": oneandone.LoadBalancerMethod.ROUND_ROBIN
         };
         oneandone.updateLoadBalancer(loadBalancer.id, updateData, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(202, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -172,7 +198,9 @@ describe('LoadBalancer tests', function () {
                     ]
                 };
                 oneandone.assignServerIpToLoadBalancer(loadBalancer.id, assignData, function (error, response, body) {
-                    assert.equal(error, null);
+                    helper.assertNoError(202, response, function (result) {
+                        assert(result);
+                    });
                     assert.notEqual(response, null);
                     assert.notEqual(body, null);
 
@@ -186,7 +214,9 @@ describe('LoadBalancer tests', function () {
 
     it('List Load Balancer server ips', function (done) {
         oneandone.listLoadBalancerServerIps(loadBalancer.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -197,7 +227,9 @@ describe('LoadBalancer tests', function () {
 
     it('Get Load Balancer server ip', function (done) {
         oneandone.getLoadBalancerServerIp(loadBalancer.id, server.ips[0].id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -208,7 +240,9 @@ describe('LoadBalancer tests', function () {
 
     it('Delete Load Balancer server ip', function (done) {
         oneandone.unassignServerIpFromLoadBalancer(loadBalancer.id, server.ips[0].id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(202, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -230,7 +264,9 @@ describe('LoadBalancer tests', function () {
             ]
         };
         oneandone.addRulesToLoadBalancer(loadBalancer.id, ruleData, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(202, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             setTimeout(function () {
@@ -243,7 +279,9 @@ describe('LoadBalancer tests', function () {
 
     it('List Load Balancer Rules', function (done) {
         oneandone.listLoadBalancerRules(loadBalancer.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -254,7 +292,9 @@ describe('LoadBalancer tests', function () {
 
     it('Get Load Balancer Rule', function (done) {
         oneandone.getLoadBalancerRule(loadBalancer.id, loadBalancer.rules[0].id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             done();
@@ -263,7 +303,9 @@ describe('LoadBalancer tests', function () {
 
     it('Delete Load Balancer Rule', function (done) {
         oneandone.removeRuleFromLoadBalancer(loadBalancer.id, loadBalancer.rules[0].id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(202, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);

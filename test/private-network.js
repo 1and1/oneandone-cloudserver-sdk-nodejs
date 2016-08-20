@@ -6,23 +6,8 @@ var oneandone = require('../lib/liboneandone');
 var helper = require('../test/testHelper');
 var privateNetwork = {};
 var server = {};
-var serverData = {
-    "name": "Node privatenetwork server",
-    "description": "description",
-    "hardware": {
-        "vcore": 2,
-        "cores_per_processor": 1,
-        "ram": 2,
-        "hdds": [
-            {
-                "size": 40,
-                "is_main": true
-            }
-        ]
-    },
-    "appliance_id": "81504C620D98BCEBAA5202D145203B4B",
-    "datacenter_id": "908DC2072407C94C8054610AD5A53B8C"
-};
+var appliance = {};
+var dataCenter = {};
 
 
 describe('Private Network tests', function () {
@@ -30,20 +15,53 @@ describe('Private Network tests', function () {
 
     before(function (done) {
         helper.authenticate(oneandone);
-        oneandone.createServer(serverData, function (error, response, body) {
-            server = JSON.parse(body);
-            var pnData = {
-                "name": "node Private Network",
-                "description": "node Private network description",
-                "network_address": "192.168.1.0",
-                "subnet_mask": "255.255.255.0"
+        var options = {
+            query: "centos"
+        };
+        oneandone.listServerAppliancesWithOptions(options, function (error, response, body) {
+            var res = JSON.parse(body);
+            appliance = res[0];
+            var options = {
+                query: "us"
             };
-            helper.checkServerReady(server, function () {
-                oneandone.createPrivateNetwork(pnData, function (error, response, body) {
-                    assert.equal(error, null);
-                    assert.notEqual(response, null);
-                    privateNetwork = JSON.parse(body);
-                    done();
+            oneandone.listDatacentersWithOptions(options, function (error, response, body) {
+                var res1 = JSON.parse(body);
+                dataCenter = res1[0];
+            });
+            var serverData = {
+                "name": "Node privatenetwork server",
+                "description": "description",
+                "hardware": {
+                    "vcore": 2,
+                    "cores_per_processor": 1,
+                    "ram": 2,
+                    "hdds": [
+                        {
+                            "size": 40,
+                            "is_main": true
+                        }
+                    ]
+                },
+                "appliance_id": appliance.id,
+                "datacenter_id": dataCenter.id
+            };
+            oneandone.createServer(serverData, function (error, response, body) {
+                server = JSON.parse(body);
+                var pnData = {
+                    "name": "node Private Network",
+                    "description": "node Private network description",
+                    "network_address": "192.168.1.0",
+                    "subnet_mask": "255.255.255.0"
+                };
+                helper.checkServerReady(server, function () {
+                    oneandone.createPrivateNetwork(pnData, function (error, response, body) {
+                        helper.assertNoError(202, response, function (result) {
+                            assert(result);
+                        });
+                        assert.notEqual(response, null);
+                        privateNetwork = JSON.parse(body);
+                        done();
+                    });
                 });
             });
         });
@@ -88,7 +106,9 @@ describe('Private Network tests', function () {
     it('List Private Networks', function (done) {
         setTimeout(function () {
             oneandone.listPrivateNetworks(function (error, response, body) {
-                assert.equal(error, null);
+                helper.assertNoError(200, response, function (result) {
+                    assert(result);
+                });
                 assert.notEqual(response, null);
                 assert.notEqual(body, null);
                 var object = JSON.parse(body);
@@ -104,7 +124,9 @@ describe('Private Network tests', function () {
         };
         setTimeout(function () {
             oneandone.listPrivateNetworksWithOptions(options, function (error, response, body) {
-                assert.equal(error, null);
+                helper.assertNoError(200, response, function (result) {
+                    assert(result);
+                });
                 assert.notEqual(response, null);
                 assert.notEqual(body, null);
                 var object = JSON.parse(body);
@@ -116,7 +138,9 @@ describe('Private Network tests', function () {
 
     it('Get Private Network', function (done) {
         oneandone.getPrivateNetwork(privateNetwork.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -133,7 +157,9 @@ describe('Private Network tests', function () {
             "subnet_mask": "255.255.255.0"
         };
         oneandone.updatePrivateNetwork(privateNetwork.id, updateData, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -152,7 +178,9 @@ describe('Private Network tests', function () {
                     ]
                 };
                 oneandone.attachServerToPrivateNetwork(privateNetwork.id, attach, function (error, response, body) {
-                    assert.equal(error, null);
+                    helper.assertNoError(202, response, function (result) {
+                        assert(result);
+                    });
                     assert.notEqual(response, null);
                     assert.notEqual(body, null);
                     done();
@@ -164,7 +192,9 @@ describe('Private Network tests', function () {
     it('List Private Network server', function (done) {
         helper.checkPrivateNetworkReady(server, privateNetwork, function () {
             oneandone.listPrivateNetworkServers(privateNetwork.id, function (error, response, body) {
-                assert.equal(error, null);
+                helper.assertNoError(200, response, function (result) {
+                    assert(result);
+                });
                 assert.notEqual(response, null);
                 assert.notEqual(body, null);
                 var object = JSON.parse(body);
@@ -176,7 +206,9 @@ describe('Private Network tests', function () {
 
     it('Get Private Network server', function (done) {
         oneandone.getPrivateNetworkServer(privateNetwork.id, server.id, function (error, response, body) {
-            assert.equal(error, null);
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
             assert.notEqual(response, null);
             assert.notEqual(body, null);
             var object = JSON.parse(body);
@@ -190,7 +222,9 @@ describe('Private Network tests', function () {
             helper.checkServerReady(server, function () {
                 helper.checkPrivateNetworkReady(server, privateNetwork, function () {
                     oneandone.detachServerFromPrivateNetwork(privateNetwork.id, server.id, function (error, response, body) {
-                        assert.equal(error, null);
+                        helper.assertNoError(202, response, function (result) {
+                            assert(result);
+                        });
                         assert.notEqual(response, null);
                         assert.notEqual(body, null);
                         var object = JSON.parse(body);
@@ -201,5 +235,6 @@ describe('Private Network tests', function () {
             });
         });
     });
-});
+})
+;
 
