@@ -1,0 +1,40 @@
+{
+  "name": "liboneandone",
+  "version": "1.0.0",
+  "description": "The 1&1 Library for Node and Io",
+  "main": "./lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/temp/temp.git"
+  },
+  "author": "alibaz <ali@stackpointcloud.com>",
+  "license": "BSD",
+  "bugs": {
+    "url": ""
+  },
+  "homepage": "",
+  "dependencies": {
+    "mocha": "^2.5.3",
+    "request": "^2.74.0"
+  },
+  "devDependencies": {},
+  "directories": {
+    "example": "examples"
+  },
+  "keywords": [
+    "OneAndOne",
+    "sdk",
+    "cloud",
+    "REST",
+    "cloud sdk",
+    "SDK",
+    "deploy",
+    "api",
+    "Stack Point Cloud",
+    "libOneAndone",
+    "1&1"
+  ]
+}
