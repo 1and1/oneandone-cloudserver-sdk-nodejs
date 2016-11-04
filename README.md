@@ -10,6 +10,7 @@ This guide contains instructions on getting started with the library and automat
 - [Getting Started](#getting-started)
   * [Installation](#installation)
   * [Authentication](#authentication)
+  * [Error Handling](#error-handling)
 - [Operations](#operations)
   - [Servers](#servers)
   - [Images](#images)
