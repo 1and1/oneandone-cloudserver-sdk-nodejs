@@ -2,7 +2,7 @@
 
 The 1&1 Node.js SDK is a Node.js library designed for interaction with the 1&1 cloud platform over the REST API.
 
-This guide contains instructions on getting started with the library and automating various management tasks available through the 1&1 Cloud Panel UI.
+This guide contains instructions on getting started with the library and automating various management tasks available through the 1&1 Cloud Panel UI. For more information on the 1&1 Cloudserver Node.js SDK see the [1&1 Community Portal](https://www.1and1.com/cloud-community/).
 
 ## Table of Contents
 
