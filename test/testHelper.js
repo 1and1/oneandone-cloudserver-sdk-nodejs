@@ -2,7 +2,7 @@
  * Created by Ali on 7/28/2016.
  */
 
-var token = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+var token = process.env.ONEANDONE_TOKEN;
 var url = 'https://cloudpanel-api.1and1.com/v1';
 var oneandone = require('../lib/liboneandone');
 var helper = {};
