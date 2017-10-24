@@ -481,6 +481,36 @@ oneandone.createImage(imageData, function (error, response, body) {//consume the
 ```
 All fields except `Description` are required. `Frequency` may be set to `"ONCE"`, `"DAILY"` or `"WEEKLY"`.
 
+Use the same method to import an existing ISO image.
+
+```
+var imageData = {
+	"name": "node image",
+	"description": "My image description",
+        "source": "iso",
+        "url": "source of the image url",
+        "type": "os",
+        "os_id": os id,
+        "datacenter_id": datacenterId
+
+};
+```
+`Type` should be set to `os` or `app`. `OsId` is required if the image type is `os`.
+
+To import a `vdi`, `qcow`, `qcow2`, `vhd`, `vhdx` or `vmdk` image, instantiate the image request as follows:
+
+```
+var imageData = {
+	"name": "node image",
+	"description": "My image description",
+        "source": "image",
+        "url": image_url,
+        "os_id": os id,
+        "datacenter_id": datacenterId
+
+};
+```
+
 **Update an image:**
 
 ```
