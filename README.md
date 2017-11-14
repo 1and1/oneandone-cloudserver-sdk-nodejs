@@ -189,6 +189,13 @@ If any of the parameters `sort`, `query` or `fields` is set to an empty string, 
 var serverData = {
   "name": "My server",
   "description": "My server description",
+  "rsa_key": "Put a valid public SSH Key to be copied into the server during creation. Then you will be able to access to the server using your SSH keys",
+  "password":"Password of the server. Password must contain more than 8 characters using uppercase letters, numbers and other special symbols.",
+  "firewall_policy_id":"Firewall policy's ID. If it is not provided, the server will assign the best firewall policy, creating a new one if necessary. If the parameter is sent with a 0 value, the server will be created with all ports blocked.",
+  "load_balancer_id":"Load balancer's ID"و
+  "monitoring_policy_id":"Monitoring policy's ID",
+  "ip_id":"IP's ID",
+  "server_type":"cloud or baremetal",
   "hardware": {
     "vcore": 2,
     "cores_per_processor": 1,
@@ -203,6 +210,24 @@ var serverData = {
       "is_main": false
     }
     ]
+  },
+  "appliance_id": "B5F778B85C041347BCDCFC3172AB3F3C",
+  "datacenter_id": "908DC2072407C94C8054610AD5A53B8C"
+};
+```
+```
+oneandone.createServer(serverData, function (error, response, body) {//consume the result });
+```
+
+**Create a baremetal server:**
+
+```
+var serverData = {
+  "name": "My server",
+  "description": "My server description"
+  "server_type":"baremetal",
+  "hardware": {
+    "baremetal_model_id": "Id of the baremetal model"
   },
   "appliance_id": "B5F778B85C041347BCDCFC3172AB3F3C",
   "datacenter_id": "908DC2072407C94C8054610AD5A53B8C"
@@ -475,7 +500,11 @@ var imageData = {
 	"name": "node image",
 	"description": "My image description",
 	"frequency": oneandone.ImageFrequency.WEEKLY,
-	"num_images": 1
+	"num_images": 1,
+	"source":"["server", "image", "iso"]",
+        "url":"URL where the image can be downloaded. It is required when the source is image or iso.",
+        "os_id":"ID of the Operative System you want to import. You can get a list of the available ones with the method **List all images**"
+        "type":"["os", "app"]".
 };
 oneandone.createImage(imageData, function (error, response, body) {//consume the result });
 ```

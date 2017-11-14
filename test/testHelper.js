@@ -28,6 +28,21 @@ helper.checkServerReady = function (currentServer, callback) {
     });
 };
 
+helper.checkImageReady = function (currentImage, callback) {
+    var checkImage = {};
+    oneandone.getImage(currentImage.id, function (error, response, body) {
+        checkImage = JSON.parse(body);
+        if (checkImage.state != "ENABLED"
+          || checkImage.state != "ACTIVE") {
+            setTimeout(function () {
+                helper.checkImageReady(checkImage, callback);
+            }, 40000);
+        } else {
+            callback();
+        }
+    });
+};
+
 helper.checkPrivateNetworkReady = function (currentServer, privateNetwork, callback) {
     var checkPn = {};
     oneandone.getServerPrivateNetwork(currentServer.id, privateNetwork.id,
