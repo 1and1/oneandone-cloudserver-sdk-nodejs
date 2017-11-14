@@ -21,7 +21,7 @@ helper.checkServerReady = function (currentServer, callback) {
             || (checkServer.status.percent != null && checkServer.status.percent != 0)) {
             setTimeout(function () {
                 helper.checkServerReady(checkServer, callback);
-            }, 5000);
+            }, 20000);
         } else {
             callback();
         }
