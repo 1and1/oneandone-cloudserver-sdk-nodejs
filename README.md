@@ -1184,7 +1184,7 @@ oneandone.updateVpn(vpn.id, updateData, function (error, response, body) {//cons
 
 **Retrieve a VPN's configuration file:**
 
-`oneandone.getConfigurationFile(vpn.id, function (error, response, body) {//consume the result });`
+`oneandone.getConfigurationFile('C:\\'+vpn.name, vpn.id, function (error, response, body) {//this operation will create a zip file in the provided path and name});`
 
 ### Monitoring Center
 
