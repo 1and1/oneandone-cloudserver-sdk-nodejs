@@ -56,7 +56,7 @@ describe('Users tests', function () {
 
     it('List users with options', function (done) {
         var options = {
-            query: "ali"
+            query: "node"
         };
 
         setTimeout(function () {

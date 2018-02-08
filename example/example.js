@@ -128,6 +128,7 @@ var publicIpId = "";
                                     }
                                 ]
                             },
+                            "server_type":"cloud",
                             "ip_id": publicIpId,
                             "appliance_id": appliance.id,
                             "datacenter_id": dataCenter.id
