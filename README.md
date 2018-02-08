@@ -2,7 +2,7 @@
 
 The 1&1 Node.js SDK is a Node.js library designed for interaction with the 1&1 cloud platform over the REST API.
 
-This guide contains instructions on getting started with the library and automating various management tasks available through the 1&1 Cloud Panel UI.
+This guide contains instructions on getting started with the library and automating various management tasks available through the 1&1 Cloud Panel UI. For more information on the 1&1 Cloudserver Node.js SDK see the [1&1 Community Portal](https://www.1and1.com/cloud-community/).
 
 ## Table of Contents
 
@@ -31,6 +31,8 @@ This guide contains instructions on getting started with the library and automat
   - [Ping](#ping)
   - [Pricing](#pricing)
   - [Data Centers](#data-centers)
+  - [SSH Keys](#ssh-keys)
+  - [Block Storages](#block-storages)
 - [Example](#example)
 - [Index](#index)
 
@@ -192,7 +194,7 @@ var serverData = {
   "rsa_key": "Put a valid public SSH Key to be copied into the server during creation. Then you will be able to access to the server using your SSH keys",
   "password":"Password of the server. Password must contain more than 8 characters using uppercase letters, numbers and other special symbols.",
   "firewall_policy_id":"Firewall policy's ID. If it is not provided, the server will assign the best firewall policy, creating a new one if necessary. If the parameter is sent with a 0 value, the server will be created with all ports blocked.",
-  "load_balancer_id":"Load balancer's ID"و
+  "load_balancer_id":"Load balancer's ID"?
   "monitoring_policy_id":"Monitoring policy's ID",
   "ip_id":"IP's ID",
   "server_type":"cloud or baremetal",
@@ -2031,6 +2033,149 @@ oneandone.listDatacentersWithOptions(options, function (error, response, body) {
 
 `oneandone.getDatacenters(dataCenter.id, function (error, response, body) {//consume the result });`
 
+### SSH Keys
+
+**List all SSH Keys:**
+
+`oneandone.listSshKeys(function (error, response, body) {//consume the result });`
+
+**Retrieve a list of your SSH Keys with options:**
+
+```
+var options = {
+	query: "node",	
+	page:1,
+	perPage:1,
+	sort:""
+};
+```
+
+```oneandone.listSshKeysWithOptions(options, function (error, response, body) {//consume the result });```
+
+To paginate the list of SSH Keys received in the response use `page` and `per_page` parameters. Set ` per_page` to the number of SSH Keys that will be shown in each page. `page` indicates the current page. When set to an integer value that is less or equal to zero, the parameters are ignored by the framework.
+
+To receive the list of SSH Keys sorted in expected order pass a SshKey property (e.g. `"name"`) in `sort` parameter. Prefix the sorting attribute with `-` sign for sorting in descending order.
+
+Use `query` parameter to search for a string in the response and return only the SshKey instances that contain it.
+
+To retrieve a collection of SSH Keys containing only the requested fields pass a list of comma separated properties (e.g. `"id,name,creation_date"`) in `fields` parameter.
+
+If any of the parameters `sort`, `query` or `fields` is set to an empty string, it is ignored in the request.
+
+**Retrieve information about an SSH Key:**
+
+`oneandone.getSshKey(sshKey.id, function (error, response, body) {//consume the result });`
+
+**Create an SSH Key:**
+
+``` 
+var sshKeyData = {
+    "name": "node SSH Key",
+    "description": "node SSH Key description",
+    "public_key": "ssh-rsa AAAAB3NzaC1yc2EAAA...O/IFBw== test@email.com"
+};
+```
+```
+oneandone.createSshKey(sshKeyData, function (error, response, body) {//consume the result });
+```
+
+**Modify an SSH Key:**
+
+```
+updateData = {
+    "name": "node SSH Key rename",
+    "description": "node SSH Key rename description"
+};
+```
+```
+oneandone.updateSshKey(sshKey.id, updateData, function (error, response, body) {//consume the result });
+```
+
+**Delete an SSH Key:**
+
+`oneandone.deleteSshKey(sshKeyToRemove.id, function (error, response, body) {//consume the result });`
+
+### Block Storages
+
+**List all Block Storages:**
+
+`oneandone.listBlockStorages(function (error, response, body) {//consume the result });`
+
+**List all Block Storages with options:**
+
+```
+var options = {
+	query: "node",	
+	page:1,
+	perPage:1,
+	sort:""
+};
+```
+```
+oneandone.listBlockStoragesWithOptions(options, function (error, response, body) {//consume the result });
+```
+
+To paginate the list of block storages received in the response use `page` and `perPage` parameters. Set `perPage` to the number of block storages that will be shown in each page. `page` indicates the current page. When set to an integer value that is less than or equal to zero, the parameters are ignored by the framework.
+
+To receive the list of block storages sorted in expected order, pass a BlockStorage property (e.g. `"name"`) in `sort` parameter. Prefix the sorting attribute with `-` sign for sorting in descending order.
+
+Use `query` parameter to search for a string in the response and return only the block storage instances that contain it.
+
+To retrieve a collection of block storages containing only the requested fields, pass a list of comma-separated properties (e.g. `"id,name,size"`) in `fields` parameter.
+
+If any of the parameters `sort`, `query` or `fields` is set to an empty string, it is ignored in the request.
+
+**Retrieve a block storage:**
+
+`oneandone.getBlockStorage(block_storage_id, function (error, response, body) {//consume the result });`
+
+
+**Create a block storage:**
+
+```
+var blockStorageData = {
+	"name": "node js block storage test",
+	"description": "My block storage test description",
+	"size": 40,
+	"datacenter_id": "<DATACENTER-ID>"
+};
+oneandone.createBlockStorage(blockStorageData, function (error, response, body) {//consume the result });
+```
+
+`description` and 'datacenter_id' are optional parameters.
+
+
+**Update a block storage:**
+
+```
+updateData = {
+	"name": "node js block storage test rename",
+	"description": "My block storage rename"
+};
+oneandone.updateBlockStorage(block_storage_id, updateData, function (error, response, body) {//consume the result });
+```
+All request's parameters are optional.
+
+
+**Remove a block storage:**
+
+`oneandone.deleteBlockStorage(block_storage_id, function (error, response, body) {//consume the result });`
+
+
+**Attach a block storage:**
+
+```
+var attachData = {
+	"server": server_id
+};
+oneandone.attachBlockStorage(block_storage_id, attachData, function (error, response, body) {//consume the result });
+```
+
+				
+**Detach a block storage:**
+
+`oneandone.detachBlockStorage(block_storage_id, function (error, response, body) {//consume the result });`
+
 ## Example
 
 The example below is a main class in Node.js that creates an IP, firewall policy, and a load balancer. After that it creates a server and waits for it to deploy and power on.
@@ -3132,6 +3277,31 @@ listDatacenters: function (callback) {
 ```javascript
  getDatacenters: function (dc_id, callback) {
         req.is_get([this.datacentersEndPointPath, dc_id], callback)
+    }
+```
+```javascript
+listSshKeys: function (callback) {
+        req.is_get([this.sshKeyEndPointPath], callback)
+    }
+```
+```javascript
+getSshKey: function (ssh_key_id, callback) {
+        req.is_get([this.sshKeyEndPointPath, ssh_key_id], callback)
+    }
+```
+```javascript
+createSshKey: function (json, callback) {
+        req.is_post([this.sshKeyEndPointPath], json, callback)
+    }
+```
+```javascript
+updateSshKey: function (ssh_key_id, json, callback) {
+        req.is_put([this.sshKeyEndPointPath, ssh_key_id], json, callback)
+    }
+```
+```javascript
+deleteSshKey: function (ssh_key_id, callback) {
+        req.is_del([this.sshKeyEndPointPath, ssh_key_id], callback)
     }
 ```
 ```javascript

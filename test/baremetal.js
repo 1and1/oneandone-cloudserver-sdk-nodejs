@@ -326,20 +326,6 @@ describe('Baremetal Server tests', function () {
     });
   });
 
-  it('Remove Firewall Policy from  an IP', function (done) {
-    helper.checkServerReady(server, function () {
-      oneandone.deleteIpFirewallPolicy(server.id, currentIp.id, function (error, response, body) {
-        helper.assertNoError(202, response, function (result) {
-          assert(result);
-        });
-        assert.notEqual(response, null);
-        assert.notEqual(body, null);
-        done();
-      });
-    });
-
-  });
-
   it('Update server', function (done) {
     updateData = {
       "name": "Baremetal Node Server - UPDATED",
