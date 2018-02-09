@@ -10,7 +10,7 @@ var appliance = {};
 var dataCenter = {};
 
 describe('Images tests', function () {
-    this.timeout(900000);
+    this.timeout(1800000);
 
     before(function (done) {
         helper.authenticate(oneandone);
@@ -28,7 +28,7 @@ describe('Images tests', function () {
                 dataCenter = res1[0];
             });
             var serverData = {
-                "name": "Node Image Server",
+                "name": "Node Image Server1",
                 "description": "description",
                 "hardware": {
                     "vcore": 2,
@@ -53,7 +53,7 @@ describe('Images tests', function () {
                 server = JSON.parse(body);
                 var imageData = {
                     "server_id": server.id,
-                    "name": "node image",
+                    "name": "node image3",
                     "description": "My image description",
                     "frequency": oneandone.ImageFrequency.WEEKLY,
                     "num_images": 1
@@ -156,15 +156,17 @@ describe('Images tests', function () {
             "description": "New image description",
             "frequency": oneandone.ImageFrequency.ONCE
         };
-        oneandone.updateImage(image.id, updateData, function (error, response, body) {
-            helper.assertNoError(200, response, function (result) {
-                assert(result);
+        helper.checkImageReady(image, function () {
+            oneandone.updateImage(image.id, updateData, function (error, response, body) {
+                helper.assertNoError(200, response, function (result) {
+                    assert(result);
+                });
+                assert.notEqual(response, null);
+                assert.notEqual(body, null);
+                var object = JSON.parse(body);
+                assert.equal(object.name, updateData.name);
+                done();
             });
-            assert.notEqual(response, null);
-            assert.notEqual(body, null);
-            var object = JSON.parse(body);
-            assert.equal(object.name, updateData.name);
-            done();
         });
     });
 

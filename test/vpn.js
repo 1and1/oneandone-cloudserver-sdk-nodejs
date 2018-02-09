@@ -89,7 +89,7 @@ describe('Vpns tests', function () {
 
     it('Get vpn configuration file', function (done) {
         setTimeout(function () {
-            oneandone.getConfigurationFile(vpn.id, function (error, response, body) {
+            oneandone.getConfigurationFile('C:\\'+vpn.name, vpn.id, function (error, response, body) {
                 helper.assertNoError(200, response, function (result) {
                     assert(result);
                 });

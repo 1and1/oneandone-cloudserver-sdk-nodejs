@@ -125,6 +125,14 @@ If any of the parameters `sort`, `query` or `fields` is set to an empty string, 
 
 `oneandone.getHardwareFlavour(hardware_flavour_id, function (error, response, body) {//consume the result });`
 
+**List Baremetal models:**
+
+`oneandone.listBaremetalModels(function (error, response, body) {//consume the result });`
+
+**Retrieve information about a baremetal model:**
+
+`oneandone.getBaremetalModel(baremetalModel.id, function (error, response, body) {//consume the result });`
+
 **Retrieve information about a server's hardware:**
 
 `oneandone.getHardware(server.id, function (error, response, body) {//consume the result });`
@@ -183,6 +191,13 @@ If any of the parameters `sort`, `query` or `fields` is set to an empty string, 
 var serverData = {
   "name": "My server",
   "description": "My server description",
+  "rsa_key": "Put a valid public SSH Key to be copied into the server during creation. Then you will be able to access to the server using your SSH keys",
+  "password":"Password of the server. Password must contain more than 8 characters using uppercase letters, numbers and other special symbols.",
+  "firewall_policy_id":"Firewall policy's ID. If it is not provided, the server will assign the best firewall policy, creating a new one if necessary. If the parameter is sent with a 0 value, the server will be created with all ports blocked.",
+  "load_balancer_id":"Load balancer's ID"?
+  "monitoring_policy_id":"Monitoring policy's ID",
+  "ip_id":"IP's ID",
+  "server_type":"cloud or baremetal",
   "hardware": {
     "vcore": 2,
     "cores_per_processor": 1,
@@ -197,6 +212,24 @@ var serverData = {
       "is_main": false
     }
     ]
+  },
+  "appliance_id": "B5F778B85C041347BCDCFC3172AB3F3C",
+  "datacenter_id": "908DC2072407C94C8054610AD5A53B8C"
+};
+```
+```
+oneandone.createServer(serverData, function (error, response, body) {//consume the result });
+```
+
+**Create a baremetal server:**
+
+```
+var serverData = {
+  "name": "My server",
+  "description": "My server description"
+  "server_type":"baremetal",
+  "hardware": {
+    "baremetal_model_id": "Id of the baremetal model"
   },
   "appliance_id": "B5F778B85C041347BCDCFC3172AB3F3C",
   "datacenter_id": "908DC2072407C94C8054610AD5A53B8C"
@@ -360,6 +393,12 @@ oneandone.updateServerStatus(server_id, updateData, function (error, response, b
 
 Set `setMethod` to either for `Types.ServerActionMethod.SOFTWARE` or `Types.ServerActionMethod.HARDWARE`for method of rebooting.
 
+**Recovery Reboot a server:**
+
+```
+oneandone.recoveryRebootServer (server_id, recovery_image_id, function (error, response, body) {//consume the result });
+```
+
 **Reboot a server:**
 
 ```
@@ -463,11 +502,45 @@ var imageData = {
 	"name": "node image",
 	"description": "My image description",
 	"frequency": oneandone.ImageFrequency.WEEKLY,
-	"num_images": 1
+	"num_images": 1,
+	"source":"["server", "image", "iso"]",
+        "url":"URL where the image can be downloaded. It is required when the source is image or iso.",
+        "os_id":"ID of the Operative System you want to import. You can get a list of the available ones with the method **List all images**"
+        "type":"["os", "app"]".
 };
 oneandone.createImage(imageData, function (error, response, body) {//consume the result });
 ```
 All fields except `Description` are required. `Frequency` may be set to `"ONCE"`, `"DAILY"` or `"WEEKLY"`.
+
+Use the same method to import an existing ISO image.
+
+```
+var imageData = {
+	"name": "node image",
+	"description": "My image description",
+        "source": "iso",
+        "url": "source of the image url",
+        "type": "os",
+        "os_id": os id,
+        "datacenter_id": datacenterId
+
+};
+```
+`Type` should be set to `os` or `app`. `OsId` is required if the image type is `os`.
+
+To import a `vdi`, `qcow`, `qcow2`, `vhd`, `vhdx` or `vmdk` image, instantiate the image request as follows:
+
+```
+var imageData = {
+	"name": "node image",
+	"description": "My image description",
+        "source": "image",
+        "url": image_url,
+        "os_id": os id,
+        "datacenter_id": datacenterId
+
+};
+```
 
 **Update an image:**
 
@@ -1113,7 +1186,7 @@ oneandone.updateVpn(vpn.id, updateData, function (error, response, body) {//cons
 
 **Retrieve a VPN's configuration file:**
 
-`oneandone.getConfigurationFile(vpn.id, function (error, response, body) {//consume the result });`
+`oneandone.getConfigurationFile('C:\\'+vpn.name, vpn.id, function (error, response, body) {//this operation will create a zip file in the provided path and name});`
 
 ### Monitoring Center
 
@@ -1849,6 +1922,39 @@ If any of the parameters `sort`, `query` or `fields` is blank, it is ignored in 
 `oneandone.getServerAppliance(appliance.id, function (error, response, body) {//consume the result });`
 
 
+### Recovery Images
+
+**List all the recovery images that you can use to recovery reboot into a server:**
+
+`oneandone.listRecoveryImages(function (error, response, body) {//consume the result });`
+
+```
+var options = {
+	query: "node",	
+	page:1,
+	perPage:1,
+	sort:""
+};
+```
+
+```oneandone.listRecoveryImagesWithOptions(options, function (error, response, body) {//consume the result });```
+
+To paginate the list of server appliances received in the response use `page` and `per_page` parameters. Set `per_page` to the number of server appliances that will be shown in each page. `page` indicates the current page. When set to an integer value that is less than or equal to zero, the parameters are ignored by the framework.
+
+To receive the list of server appliances sorted in expected order, pass a server appliance property (e.g. `"os"`) in `sort` parameter. Prefix the sorting attribute with `-` sign for sorting in descending order.
+
+Use `query` parameter to search for a string in the response and return only the server appliance instances that contain it.
+
+To retrieve a collection of server appliances containing only the requested fields, pass a list of comma separated properties (e.g. `"id,os,architecture"`) in `fields` parameter.
+
+If any of the parameters `sort`, `query` or `fields` is blank, it is ignored in the request.
+
+**Retrieve information about specific recovery image:**
+
+`oneandone.getRecoveryImage(recovery_image.id, function (error, response, body) {//consume the result });`
+
+
+
 ### DVD ISO
 
 **List all operative systems and tools that you can load into your virtual DVD unit:**
@@ -2077,228 +2183,185 @@ The example below is a main class in Node.js that creates an IP, firewall policy
 After the server is created we assign the firewall policy and the load balancer to the server and in the end we clean everything out.
 
 ```
-public class main {
+var assert = require('assert');
+var oneandone = require('../lib/liboneandone');
+var helper = require('../test/testHelper');
+var firewallPolicyName = "TestfirewallPolicyNode.js1";
+var firewallPolicy = {};
+var loadBalancerName = "TestLoadBalancerNode.js1";
+var loadBalancer = {};
+var serverName = "ExampleServerNode.js1";
+var server = {};
+var publicIpId = "";
 
-    static OneAndOneApi oneandoneApi = new OneAndOneApi();
 
-    /**
-     * @param args the command line arguments
-     * @throws Node.js.lang.InterruptedException
-     */
-    public static void main(String[] args) throws InterruptedException {
-        try {
-            CreateServers();
-        } catch (Exception ex) {
-            Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
+(function () {
+    oneandone.oneandoneauth("token");
+    oneandone.setendpoint("https://cloudpanel-api.1and1.com/v1");
 
-    static void CreateServers() throws RestClientException, IOException, InterruptedException {
-        String firewallPolicyName = "TestfirewallPolicyNode.js";
-        String loadBalancerName = "TestLoadBalancerNode.js";
-        String serverName = "ExampleServerNode.js";
-        String publicIpId = "";
-
-        try {
-            //create a firewall policy
-            //define the required rules
-            System.out.println("Creating Firewall Policy with name " + firewallPolicyName);
-            List<CreateFirewallPocliyRule> newRules = new ArrayList<CreateFirewallPocliyRule>();
-            CreateFirewallPocliyRule rule1 = new CreateFirewallPocliyRule();
-            rule1.setPortTo(80);
-            rule1.setPortFrom(80);
-            rule1.setProtocol(Types.RuleProtocol.TCP);
-            rule1.setSource("0.0.0.0");
-
-            CreateFirewallPocliyRule rule2 = new CreateFirewallPocliyRule();
-            rule2.setPortTo(443);
-            rule2.setPortFrom(443);
-            rule2.setProtocol(Types.RuleProtocol.TCP);
-            rule2.setSource("0.0.0.0");
-
-            CreateFirewallPocliyRule rule3 = new CreateFirewallPocliyRule();
-            rule3.setPortTo(8447);
-            rule3.setPortFrom(8447);
-            rule3.setProtocol(Types.RuleProtocol.TCP);
-            rule3.setSource("0.0.0.0");
-
-            CreateFirewallPocliyRule rule4 = new CreateFirewallPocliyRule();
-            rule4.setPortTo(3389);
-            rule4.setPortFrom(3389);
-            rule4.setProtocol(Types.RuleProtocol.TCP);
-            rule4.setSource("0.0.0.0");
-
-            CreateFirewallPocliyRule rule5 = new CreateFirewallPocliyRule();
-            rule5.setPortTo(8443);
-            rule5.setPortFrom(8443);
-            rule5.setProtocol(Types.RuleProtocol.TCP);
-            rule5.setSource("0.0.0.0");
-
-            newRules.add(rule1);
-            newRules.add(rule2);
-            newRules.add(rule3);
-            newRules.add(rule4);
-            newRules.add(rule5);
-
-            CreateFirewallPolicyRequest policyRequest = new CreateFirewallPolicyRequest();
-            policyRequest.setName(firewallPolicyName);
-            policyRequest.setRules(newRules);
-            policyRequest.setDescription("test firewall policy with 80,443,8447,3389 and 8443 ports open");
-
-            FirewallPolicyResponse firewallPolicyResult = oneandoneApi.getFirewallPoliciesApi().createFirewallPolicy(policyRequest);
-
-            System.out.println("Creating LoadBalancer with name " + loadBalancerName);
-            //create a loadbalancer
-            List<LoadBalancerRuleRequest> loadBalancersRules = new ArrayList<LoadBalancerRuleRequest>();
-            LoadBalancerRuleRequest rule = new LoadBalancerRuleRequest();
-            rule.setPortServer(80);
-            rule.setPortBalancer(80);
-            rule.setProtocol(Types.LBRuleProtocol.TCP);
-            rule.setSource("0.0.0.0");
-            loadBalancersRules.add(rule);
-
-            CreateLoadBalancerRequest loadBalancerRequest = new CreateLoadBalancerRequest();
-            loadBalancerRequest.setName(loadBalancerName);
-            loadBalancerRequest.setDescription("LB with a round robin method and works on port 80");
-            loadBalancerRequest.setHealthCheckInterval(1);
-            loadBalancerRequest.setPersistence(true);
-            loadBalancerRequest.setPersistenceTime(30);
-            loadBalancerRequest.setHealthCheckTest(Types.HealthCheckTestTypes.NONE);
-            loadBalancerRequest.setMethod(Types.LoadBalancerMethod.ROUND_ROBIN);
-            loadBalancerRequest.setRules(loadBalancersRules);
-
-            LoadBalancerResponse loadBalancerResult = oneandoneApi.getLoadBalancerApi().createLoadBalancer(loadBalancerRequest);
-
+//create a firewall policy
+//define the required rules
+    console.log("Creating Firewall Policy with name ", firewallPolicyName);
+    var firewallData = {
+        "name": firewallPolicyName,
+        "description": "My firewall policy description",
+        "rules": [
+            {
+                "protocol": "TCP",
+                "port_from": 80,
+                "port_to": 80,
+                "source": "0.0.0.0"
+            },
+            {
+                "protocol": "TCP",
+                "port_from": 443,
+                "port_to": 443,
+                "source": "0.0.0.0"
+            },
+            {
+                "protocol": "TCP",
+                "port_from": 8447,
+                "port_to": 8447,
+                "source": "0.0.0.0"
+            },
+            {
+                "protocol": "TCP",
+                "port_from": 3389,
+                "port_to": 3389,
+                "source": "0.0.0.0"
+            },
+            {
+                "protocol": "TCP",
+                "port_from": 8443,
+                "port_to": 8443,
+                "source": "0.0.0.0"
+            }
+        ]
+    };
+    //oneandone.getFirewallPolicy("88E3E9FF1D87E09AEC77F2E32EA35080", function (error, response, body) {
+    oneandone.createFirewallPolicy(firewallData, function (error, response, body) {
+        firewallPolicy = JSON.parse(body);
+        console.log("Creating LoadBalancer with name " + loadBalancerName);
+        var balancerData = {
+            "name": loadBalancerName,
+            "description": "My load balancer description",
+            "health_check_test": oneandone.HealthCheckTestTypes.TCP,
+            "health_check_interval": 1,
+            "health_check_path": "path",
+            "health_check_parser": null,
+            "persistence": true,
+            "persistence_time": 200,
+            "method": oneandone.LoadBalancerMethod.ROUND_ROBIN,
+            "rules": [
+                {
+                    "protocol": "TCP",
+                    "port_balancer": 80,
+                    "port_server": 80,
+                    "source": "0.0.0.0"
+                },
+                {
+                    "protocol": "TCP",
+                    "port_balancer": 9999,
+                    "port_server": 8888,
+                    "source": "0.0.0.0"
+                }
+            ]
+        };
+        //oneandone.getLoadBalancer("098CDA4F62CA04911A1CF3BA448AEAB3", function (error, response, body) {
+        oneandone.createLoadBalancer(balancerData, function (error, response, body) {
+            loadBalancer = JSON.parse(body);
+            var publicIpData = {
+                "reverse_dns": "node.com",
+                "type": oneandone.IPType.IPV4
+            };
             //create a public IP and use it for the server creation
-            CreatePublicIPRequest ipRequest = new CreatePublicIPRequest();
-            ipRequest.setType(Types.IPType.IPV4);
-            PublicIPResponse publicIP = oneandoneApi.getPublicIPApi().createPublicIp(ipRequest);
-            publicIpId = publicIP.getId();
-
-            System.out.println("Creating Server with name 'Example Server Node.js'");
-            //define the number of cores to give the server
-            int vcore = 4;
-            //number of cores per processor
-            int CoresPerProcessor = 2;
-            //get server appliance with OS family type Windows
-            List<ServerAppliancesResponse> appliances = oneandoneApi.getServerAppliancesApi().getServerAppliances(0, 0, null, "", "");
-            ServerAppliancesResponse appliance = null;
-            if (appliances != null && !appliances.isEmpty()) {
-                appliance = appliances.get(0);
-            }
-
-            CreateServerRequest serverRequest = new CreateServerRequest();
-            if (appliance != null) {
-                serverRequest.setApplianceId(appliance.getId());
-            }
-            if (publicIP != null) {
-                serverRequest.setIpId(publicIP.getId());
-            }
-
-            serverRequest.setName(serverName);
-            serverRequest.setDescription("a server with a firewall policy and a loadbalancer");
-            //hardware request
-            HardwareRequest hardwareRequest = new HardwareRequest();
-            //creating a list of hdds to add
-            List<HddRequest> hdds = new ArrayList<HddRequest>();
-            HddRequest hdd = new HddRequest();
-            hdd.setIsMain(Boolean.TRUE);
-            hdd.setSize(80);
-            hdds.add(hdd);
-            hardwareRequest.setCoresPerProcessor(CoresPerProcessor);
-            hardwareRequest.setRam(8);
-            hardwareRequest.setVcore(vcore);
-            hardwareRequest.setHdds(hdds);
-
-            serverRequest.setHardware(hardwareRequest);
-            serverRequest.setPowerOn(Boolean.TRUE);
-            serverRequest.setPassword("Test123!");
-
-            System.out.println("Server created waiting to be deployed and turned on");
-
-            ServerResponse result = oneandoneApi.getServerApi().createServer(serverRequest);
-
-            //check if the server is deployed and ready for further operations
-            ServerResponse testServer = oneandoneApi.getServerApi().getServer(result.getId());
-            String serverLoading = ".";
-            while (testServer.getStatus().getState() != ServerState.POWERED_ON) {
-                serverLoading += ".";
-                System.out.println(serverLoading);
-                Thread.sleep(1000);
-                testServer = oneandoneApi.getServerApi().getServer(testServer.getId());
-            }
-
-            System.out.println("Server is Powered up and running");
-            //attaching a firewall policy to the server after creation:
-            //Get a windows firewall policy by sending the query parameter Windows
-            System.out.println("Assigning " + firewallPolicyName + "to " + serverName);
-
-            FirewallPolicyResponse firewallPolicy = oneandoneApi.getFirewallPoliciesApi().getFirewallPolicies(0, 0, null, firewallPolicyName, null).get(0);
-            IdRequest fpRequest = new IdRequest();
-            fpRequest.setId(firewallPolicy.getId());
-            oneandoneApi.getServerIpsApi().updateServerIPFirewallPolicy(testServer.getId(), testServer.getIps().get(0).getId(), fpRequest);
-            System.out.println("Assigning " + loadBalancerName + "to " + serverName);
-            // attaching a loadbalancer to the server
-            LoadBalancerResponse loadbalancer = oneandoneApi.getLoadBalancerApi().getLoadBalancers(0, 0, null, loadBalancerName, null).get(0);
-            AssignLoadBalancerRequest lbRequest = new AssignLoadBalancerRequest();
-            lbRequest.setLoadBalancerId(loadbalancer.getId());
-            oneandoneApi.getServerIpsApi().createServerIPLoadBalancer(testServer.getId(), testServer.getIps().get(0).getId(), lbRequest);
-            //cleaning up
-            System.out.println("Cleaning up all the created test data");
-            System.out.println("Press any key to start cleaning");
-            System.in.read();
-
-            oneandoneApi.getServerApi().deleteServer(testServer.getId(), true);
-            System.out.println("Server removed");
-            oneandoneApi.getLoadBalancerApi().deleteLoadBalancer(loadBalancerResult.getId());
-            System.out.println("loadbalancer removed");
-            oneandoneApi.getFirewallPoliciesApi().deleteFirewallPolicy(firewallPolicyResult.getId());
-            System.out.println("firewall policy removed");
-            if (!publicIpId.isEmpty()) {
-                oneandoneApi.getPublicIPApi().deletePublicIp(publicIpId);
-                System.out.println("public ip removed");
-            }
-
-            System.out.println("Finished cleaning press any key to exit");
-
-            System.in.read();
-        } catch (Exception ex) {
-            Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, ex);
-            try {
-
-                List<ServerResponse> servers = oneandoneApi.getServerApi().getAllServers(0, 0, null, serverName, null);
-                if (servers.size() > 0) {
-                    oneandoneApi.getServerApi().deleteServer(servers.get(0).getId(), true);
-                }
-            } catch (Exception serverEx) {
-                Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, serverEx);
-            }
-            try {
-                List<LoadBalancerResponse> balancers = oneandoneApi.getLoadBalancerApi().getLoadBalancers(0, 0, null, loadBalancerName, null);
-                if (balancers.size() > 0) {
-                    oneandoneApi.getLoadBalancerApi().deleteLoadBalancer(balancers.get(0).getId());
-                }
-            } catch (Exception balancerEx) {
-                Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, balancerEx);
-            }
-            try {
-                List<FirewallPolicyResponse> firewallPolices = oneandoneApi.getFirewallPoliciesApi().getFirewallPolicies(0, 0, null, firewallPolicyName, null);
-                if (firewallPolices.size() > 0) {
-                    oneandoneApi.getFirewallPoliciesApi().deleteFirewallPolicy(firewallPolices.get(0).getId());
-                }
-            } catch (Exception firewallPolicyex) {
-                Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, firewallPolicyex);
-            }
-            try {
-                if (!publicIpId.isEmpty()) {
-                    oneandoneApi.getPublicIPApi().deletePublicIp(publicIpId);
-                }
-            } catch (Exception firewallPolicyex) {
-                Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, firewallPolicyex);
-            }
-        }
-    }
-}
+            console.log("Creating IP.....");
+            oneandone.createPublicIp(publicIpData, function (error, response, body) {
+                var publicIp = JSON.parse(body);
+                publicIpId = publicIp.id;
+                console.log("Creating Server with name 'Example Server Node.js'");
+                var options = {
+                    query: "centos"
+                };
+                oneandone.listServerAppliancesWithOptions(options, function (error, response, body) {
+                    var res = JSON.parse(body);
+                    appliance = res[0];
+                    var options = {
+                        query: "us"
+                    };
+                    oneandone.listDatacentersWithOptions(options, function (error, response, body) {
+                        var res1 = JSON.parse(body);
+                        dataCenter = res1[0];
+                        var serverData = {
+                            "name": serverName,
+                            "description": "description",
+                            "hardware": {
+                                "vcore": 2,
+                                "cores_per_processor": 1,
+                                "ram": 2,
+                                "hdds": [
+                                    {
+                                        "size": 40,
+                                        "is_main": true
+                                    },
+                                    {
+                                        "size": 20,
+                                        "is_main": false
+                                    }
+                                ]
+                            },
+                            "server_type":"cloud",
+                            "ip_id": publicIpId,
+                            "appliance_id": appliance.id,
+                            "datacenter_id": dataCenter.id
+                        };
+                        //oneandone.getServer("C864493A796172E36131AE3F6410ACD0", function (error, response, body) {
+                        oneandone.createServer(serverData, function (error, response, body) {
+                            server = JSON.parse(body);
+                            //check if the server is deployed and ready for further operations
+                            helper.checkServerReady(server, function () {
+                                helper.updateServerData(server, function (result) {
+                                    server = result;
+                                    console.log("Server is Powered up and running");
+                                    //attaching a firewall policy to the server after creation:
+                                    //Get a windows firewall policy by sending the query parameter Windows
+                                    console.log("Assigning " + firewallPolicyName + "to " + serverName);
+                                    var firewallPolicyData = {
+                                        "id": firewallPolicy.id
+                                    };
+                                    oneandone.addFirewallPolicy(server.id, server.ips[0].id, firewallPolicyData, function (error, response, body) {
+                                        console.log("Assigning " + loadBalancerName + "to " + serverName);
+                                        // attaching a loadbalancer to the server
+                                        var loadBalancerData = {
+                                            "load_balancer_id": loadBalancer.id
+                                        };
+                                        oneandone.addIpLoadBalancer(server.id, server.ips[0].id, loadBalancerData, function (error, response, body) {
+                                            //cleaning up
+                                            console.log("Cleaning up all the created test data");
+                                            oneandone.deleteServer(server.id, false, function (error, response, body) {
+                                                console.log("Server removed");
+                                                oneandone.deleteLoadBalancer(loadBalancer.id, function (error, response, body) {
+                                                    console.log("loadbalancer removed");
+                                                    oneandone.deleteFirewallPolicy(firewallPolicy.id, function (error, response, body) {
+                                                        console.log("firewall removed");
+                                                        oneandone.deletePublicIp(publicIpId, function (error, response, body) {
+                                                            console.log("public ip removed");
+                                                            console.log("Finished cleaning ");
+                                                        });
+                                                    });
+                                                });
+                                            });
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    });
+})();
 ```
 
 
@@ -2726,6 +2789,16 @@ getHardwareFlavour: function (favour_id, callback) {
     }
 ```
 ```javascript
+listBaremetalModels: function (callback) {
+        req.is_get(["servers/baremetal_models"], callback)
+    }
+```
+```javascript
+getBaremetalModel: function (model_id, callback) {
+        req.is_get(["servers", "baremetal_models", model_id], callback)
+    }
+```
+```javascript
 getServerStatus: function (srv_id, callback) {
         req.is_get(["servers", srv_id, "status"], callback)
     }
@@ -2750,6 +2823,17 @@ updateServer: function (srv_id, json, callback) {
 ```
 ```javascript
 updateServerStatus: function (srv_id, json, callback) {
+        req.is_put(["servers", srv_id, "status/action"], json, callback)
+    }
+```
+```javascript
+recoveryRebootServer: function (srv_id, recovery_image_id, callback) {
+        json ={
+            "recovery_mode": true,
+            "recovery_image_id": recovery_image_id,
+            "action": "REBOOT",
+            "method": "SOFTWARE"
+        }
         req.is_put(["servers", srv_id, "status/action"], json, callback)
     }
 ```
@@ -3218,5 +3302,40 @@ updateSshKey: function (ssh_key_id, json, callback) {
 ```javascript
 deleteSshKey: function (ssh_key_id, callback) {
         req.is_del([this.sshKeyEndPointPath, ssh_key_id], callback)
+    }
+```
+```javascript
+listRecoveryImages: function (callback) {
+        req.is_get([this.recoveryImageEndPointPath], callback)
+    }
+```
+```javascript
+listRecoveryImagesWithOptions: function (options, callback) {
+        var path = this.recoveryImageEndPointPath;
+        if (options) {
+            path += "?";
+            if (options.page) {
+                path += "&page=" + options.page;
+            }
+            if (options.perPage) {
+                path += "&per_page=" + options.perPage;
+            }
+            if (options.sort) {
+                path += "&sort=" + options.sort;
+            }
+            if (options.query) {
+                path += "&q=" + options.query;
+            }
+            if (options.fields) {
+                path += "&fields=" + options.fields;
+            }
+        }
+
+        req.is_get([path], callback)
+    }
+```
+```javascript
+ getRecoveryImage: function (image_id, callback) {
+        req.is_get([this.recoveryImageEndPointPath, image_id], callback)
     }
 ```
