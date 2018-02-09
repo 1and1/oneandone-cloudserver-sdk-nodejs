@@ -5,6 +5,7 @@ var assert = require('assert');
 var oneandone = require('../lib/liboneandone');
 var helper = require('../test/testHelper');
 var appliance = {};
+var recovery_image = {};
 var dvdIso = {};
 var dataCenter = {};
 
@@ -210,6 +211,52 @@ describe('Monitoring center tests', function () {
             assert.notEqual(body, null);
             var object = JSON.parse(body);
             assert.equal(object.id, dataCenter.id);
+            done();
+        });
+    });
+
+    it('List Recovery Images', function (done) {
+        oneandone.listRecoveryImages(function (error, response, body) {
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
+            assert.notEqual(response, null);
+            assert.notEqual(body, null);
+            var object = JSON.parse(body);
+            assert(object.length > 0);
+            recovery_image = object[0];
+            done();
+        });
+    });
+
+    it('List Recovery Images with options', function (done) {
+        var options = {
+            page: 1
+        };
+
+        setTimeout(function () {
+            oneandone.listRecoveryImagesWithOptions(options, function (error, response, body) {
+                helper.assertNoError(200, response, function (result) {
+                    assert(result);
+                });
+                assert.notEqual(response, null);
+                assert.notEqual(body, null);
+                var object = JSON.parse(body);
+                assert(object.length > 0);
+                done();
+            });
+        }, 5000);
+    });
+
+    it('Get Recovery Image', function (done) {
+        oneandone.getRecoveryImage(recovery_image.id, function (error, response, body) {
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
+            assert.notEqual(response, null);
+            assert.notEqual(body, null);
+            var object = JSON.parse(body);
+            assert.equal(object.id, recovery_image.id);
             done();
         });
     });

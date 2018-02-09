@@ -8,6 +8,7 @@ var helper = require('../test/testHelper');
 var server = {};
 var fixedInstaceserver = {};
 var hardwareFlavour = {};
+var baremetalModel = {};
 var currentHdd = {};
 var currentImage = {};
 var appliance = {};
@@ -15,7 +16,7 @@ var dataCenter = {};
 
 
 describe('Server tests', function () {
-    this.timeout(900000);
+    this.timeout(1800000);
 
     before(function (done) {
         helper.authenticate(oneandone);
@@ -32,8 +33,9 @@ describe('Server tests', function () {
                 var res1 = JSON.parse(body);
                 dataCenter = res1[0];
                 var serverData = {
-                    "name": "Node Server",
+                    "name": "Node Server1",
                     "description": "description",
+                    "server_type": "cloud",
                     "hardware": {
                         "vcore": 2,
                         "cores_per_processor": 1,
@@ -93,11 +95,13 @@ describe('Server tests', function () {
 
     it('Create Fixed Instance server', function (done) {
         fixedInstace = {
-            "name": "Node Fixed Instance server",
+            "name": "Node Fixed Instance server1",
             "description": "My server description",
+            "server_type": "cloud",
             "hardware": {
-                "fixed_instance_size_id": "65929629F35BBFBA63022008F773F3EB"
+                "fixed_instance_size_id": "81504C620D98BCEBAA5202D145203B4B"
             },
+            "server_type": "cloud",
             "appliance_id": appliance.id,
             "datacenter_id": dataCenter.id
         };
@@ -167,6 +171,31 @@ describe('Server tests', function () {
         });
     });
 
+    it('List Bare metal Model', function (done) {
+        oneandone.listBaremetalModels(function (error, response, body) {
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
+            assert.notEqual(response, null);
+            assert.notEqual(body, null);
+            var object = JSON.parse(body);
+            assert(object.length > 0);
+            baremetalModel = object[0];
+            done();
+        });
+    });
+
+    it('Get Bare metal Model', function (done) {
+        oneandone.getBaremetalModel(baremetalModel.id, function (error, response, body) {
+            helper.assertNoError(200, response, function (result) {
+                assert(result);
+            });
+            assert.notEqual(response, null);
+            assert.notEqual(body, null);
+            done();
+        });
+    });
+
     it('Get server status', function (done) {
         oneandone.getServerStatus(server.id, function (error, response, body) {
             helper.assertNoError(200, response, function (result) {
@@ -176,6 +205,31 @@ describe('Server tests', function () {
             assert.notEqual(body, null);
             done();
         });
+    });
+
+    it('Recovery Reboot image', function (done) {
+        var options = {
+            page: 1,
+            query: "linux"
+        };
+
+        setTimeout(function () {
+            oneandone.listRecoveryImagesWithOptions(options, function (error, response, body) {
+                helper.assertNoError(200, response, function (result) {
+                    assert(result);
+                });
+                assert.notEqual(response, null);
+                assert.notEqual(body, null);
+                var object = JSON.parse(body);
+                helper.checkServerReady(fixedInstaceserver, function () {
+                    oneandone.recoveryRebootServer (fixedInstaceserver.id, object[0].id, function (error, response, body) {
+                        assert.notEqual(response, null);
+                        assert.notEqual(body, null);
+                        done();
+                    });
+                });
+            });
+        }, 12000);
     });
 
     it('Get server', function (done) {
@@ -199,18 +253,20 @@ describe('Server tests', function () {
 
         };
         helper.checkServerReady(server, function () {
-            oneandone.updateServer(server.id, updateData, function (error, response, body) {
-                helper.assertNoError(200, response, function (result) {
-                    assert(result);
+            setTimeout(function () {
+                oneandone.updateServer(server.id, updateData, function (error, response, body) {
+                    helper.assertNoError(200, response, function (result) {
+                        assert(result);
+                    });
+                    assert.notEqual(response, null);
+                    assert.notEqual(body, null);
+                    var object = JSON.parse(body);
+                    assert.equal(object.id, server.id);
+                    assert.equal(object.name, updateData.name);
+                    assert.equal(object.description, updateData.description);
+                    done();
                 });
-                assert.notEqual(response, null);
-                assert.notEqual(body, null);
-                var object = JSON.parse(body);
-                assert.equal(object.id, server.id);
-                assert.equal(object.name, updateData.name);
-                assert.equal(object.description, updateData.description);
-                done();
-            });
+            }, 12000);
         });
     });
 

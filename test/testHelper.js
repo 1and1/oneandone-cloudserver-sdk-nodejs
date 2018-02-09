@@ -2,7 +2,7 @@
  * Created by Ali on 7/28/2016.
  */
 
-var token = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+var token = process.env.ONEANDONE_TOKEN;
 var url = 'https://cloudpanel-api.1and1.com/v1';
 var oneandone = require('../lib/liboneandone');
 var helper = {};
@@ -21,7 +21,22 @@ helper.checkServerReady = function (currentServer, callback) {
             || (checkServer.status.percent != null && checkServer.status.percent != 0)) {
             setTimeout(function () {
                 helper.checkServerReady(checkServer, callback);
-            }, 5000);
+            }, 20000);
+        } else {
+            callback();
+        }
+    });
+};
+
+helper.checkImageReady = function (currentImage, callback) {
+    var checkImage = {};
+    oneandone.getImage(currentImage.id, function (error, response, body) {
+        checkImage = JSON.parse(body);
+        if (checkImage.state != "ENABLED"
+          || checkImage.state != "ACTIVE") {
+            setTimeout(function () {
+                helper.checkImageReady(checkImage, callback);
+            }, 40000);
         } else {
             callback();
         }
