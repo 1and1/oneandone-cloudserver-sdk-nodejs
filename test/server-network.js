@@ -17,11 +17,16 @@ describe('Server Network tests', function () {
     before(function (done) {
         helper.authenticate(oneandone);
         var options = {
-            query: "centos"
+            query: "ubuntu"
         };
         oneandone.listServerAppliancesWithOptions(options, function (error, response, body) {
             var res = JSON.parse(body);
-            appliance = res[0];
+            for (var i=0;i<res.length;i++){
+                if(res[i].type=="IMAGE"){
+                    appliance = res[i];
+                    break;
+                }
+            }
             var options = {
                 query: "us"
             };
@@ -29,7 +34,7 @@ describe('Server Network tests', function () {
                 var res1 = JSON.parse(body);
                 dataCenter = res1[0];
                 var serverData = {
-                    "name": "Node Server network test2",
+                    "name": "Node Server network test",
                     "description": "description",
                     "hardware": {
                         "vcore": 2,
@@ -188,20 +193,6 @@ describe('Server Network tests', function () {
                 done();
             });
         });
-    });
-
-    it('Remove Firewall Policy from  an IP', function (done) {
-        helper.checkServerReady(server, function () {
-            oneandone.deleteIpFirewallPolicy(server.id, currentIp.id, function (error, response, body) {
-                helper.assertNoError(202, response, function (result) {
-                    assert(result);
-                });
-                assert.notEqual(response, null);
-                assert.notEqual(body, null);
-                done();
-            });
-        });
-
     });
 
     it('Add LoadBalancer to an IP', function (done) {

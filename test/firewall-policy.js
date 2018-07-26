@@ -16,11 +16,17 @@ describe('Firewall Policy tests', function () {
     before(function (done) {
         helper.authenticate(oneandone);
         var options = {
-            query: "centos"
+            query: "ubuntu"
         };
         oneandone.listServerAppliancesWithOptions(options, function (error, response, body) {
             var res = JSON.parse(body);
-            appliance = res[0];
+            for (var i=0;i<res.length;i++){
+                if(res[i].type=="IMAGE"){
+                    appliance = res[i];
+                    break;
+                }
+            }
+
             var options = {
                 query: "us"
             };
@@ -54,14 +60,14 @@ describe('Firewall Policy tests', function () {
                     "rules": [
                         {
                             "protocol": "TCP",
-                            "port_from": 80,
-                            "port_to": 80,
+                            "port": "80",
+                            "action":"allow",
                             "source": "0.0.0.0"
                         },
                         {
                             "protocol": "TCP",
-                            "port_from": 443,
-                            "port_to": 443,
+                            "port": "90",
+                            "action":"allow",
                             "source": "0.0.0.0"
                         }
                     ]
@@ -104,12 +110,12 @@ describe('Firewall Policy tests', function () {
         }
     };
     after(function (done) {
-        removeFirewallPolicy(firewallPolicy, function () {
-            setTimeout(function () {
-                removeServer(server, function () {
+        removeServer(server, function () {
+            helper.checkServerRemoved(server, function () {
+                removeFirewallPolicy(firewallPolicy, function () {
                     done();
                 });
-            }, 100000);
+            });
         });
     });
 
@@ -227,27 +233,13 @@ describe('Firewall Policy tests', function () {
         });
     });
 
-    it('Delete Firewall Policy server ip', function (done) {
-        oneandone.unassignServerIpFromFirewallPolicy(firewallPolicy.id, server.ips[0].id, function (error, response, body) {
-            helper.assertNoError(202, response, function (result) {
-                assert(result);
-            });
-            assert.notEqual(response, null);
-            assert.notEqual(body, null);
-            var object = JSON.parse(body);
-            assert.equal(object.id, firewallPolicy.id);
-            done();
-        });
-
-    });
-
     it('Add rule', function (done) {
         ruleData = {
             "rules": [
                 {
                     "protocol": oneandone.RuleProtocol.TCP,
-                    "port_from": 4567,
-                    "port_to": 4567,
+                    "port": "4567",
+                    "action": "allow",
                     "source": "0.0.0.0"
                 }
             ]

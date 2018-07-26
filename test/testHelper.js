@@ -17,10 +17,27 @@ helper.checkServerReady = function (currentServer, callback) {
     oneandone.getServer(currentServer.id, function (error, response, body) {
         checkServer = JSON.parse(body);
         if ((checkServer.status.state != oneandone.ServerState.POWERED_OFF
-            && checkServer.status.state != oneandone.ServerState.POWERED_ON)
-            || (checkServer.status.percent != null && checkServer.status.percent != 0)) {
+          && checkServer.status.state != oneandone.ServerState.POWERED_ON)
+          || (checkServer.status.percent != null && checkServer.status.percent != 0)) {
             setTimeout(function () {
                 helper.checkServerReady(checkServer, callback);
+            }, 20000);
+        } else {
+            callback();
+        }
+    });
+};
+
+helper.checkServerRemoved = function (currentServer, callback) {
+    var checkServer = {};
+    if (!currentServer || !currentServer.id) {
+        callback();
+    }
+    oneandone.getServer(currentServer.id, function (error, response, body) {
+        checkServer = JSON.parse(body);
+        if (!error && response.statusCode == 200) {
+            setTimeout(function () {
+                helper.checkServerRemoved(checkServer, callback);
             }, 20000);
         } else {
             callback();
@@ -46,16 +63,16 @@ helper.checkImageReady = function (currentImage, callback) {
 helper.checkPrivateNetworkReady = function (currentServer, privateNetwork, callback) {
     var checkPn = {};
     oneandone.getServerPrivateNetwork(currentServer.id, privateNetwork.id,
-        function (error, response, body) {
-            checkPn = JSON.parse(body);
-            if (checkPn.state != oneandone.GenericState.ACTIVE) {
-                setTimeout(function () {
-                    helper.checkPrivateNetworkReady(currentServer, privateNetwork, callback);
-                }, 5000);
-            } else {
-                callback();
-            }
-        }
+      function (error, response, body) {
+          checkPn = JSON.parse(body);
+          if (checkPn.state != oneandone.GenericState.ACTIVE) {
+              setTimeout(function () {
+                  helper.checkPrivateNetworkReady(currentServer, privateNetwork, callback);
+              }, 5000);
+          } else {
+              callback();
+          }
+      }
     )
     ;
 };

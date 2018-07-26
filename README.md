@@ -364,10 +364,6 @@ var firewallPolicyData = {
 oneandone.addFirewallPolicy(server_id, ip_id, firewallPolicyData, function (error, response, body) {//consume the result });
 ```
 
-**Remove a firewall policy from a server's IP:**
-
-`oneandone.deleteIpFirewallPolicy(server_id, ip_id, function (error, response, body) {//consume the result });`
-
 **Assign a new load balancer to a server's IP:**
 
 ```
@@ -716,14 +712,14 @@ var firewallData = {
 	"rules": [
 		{
 			"protocol": "TCP",
-			"port_from": 80,
-			"port_to": 80,
+			"port": "80",
+            "action": "allow",
 			"source": "0.0.0.0"
 		},
 		{
 			"protocol": "TCP",
-			"port_from": 443,
-			"port_to": 443,
+			"port": "443",
+            "action": "allow",
 			"source": "0.0.0.0"
 		}
 	]
@@ -775,11 +771,6 @@ var assignData = {
 oneandone.assignServerIpToFirewallPolicy(firewall_policy_id, assignData, function (error, response, body) {//consume the result });
 ```
 
-**Remove a server/IP from a firewall policy:**
-
-`oneandone.unassignServerIpFromFirewallPolicy(firewall_policy_id, server_ip_id, function (error, response, body) {//consume the result });`
-
-
 **List rules of a firewall policy:**
 
 `oneandone.listFirewallPolicyRules(firewall_policy_id, function (error, response, body) {//consume the result });`
@@ -797,8 +788,8 @@ var ruleData = {
 	"rules": [
 		{
 			"protocol": oneandone.RuleProtocol.TCP,
-			"port_from": 4567,
-			"port_to": 4567,
+			"port": "4567",
+			"action": "allow",
 			"source": "0.0.0.0"
 		}
 	]
@@ -2979,11 +2970,6 @@ listIpFirewallPolicies: function (srv_id, ip_id, callback) {
 ```javascript
 addFirewallPolicy: function (srv_id, ip_id, json, callback) {
         req.is_put(["servers", srv_id, "ips", ip_id, "firewall_policy"], json, callback)
-    }
-```
-```javascript
-deleteIpFirewallPolicy: function (srv_id, ip_id, callback) {
-        req.is_del(["servers", srv_id, "ips", ip_id, "firewall_policy"], callback)
     }
 ```
 ```javascript
