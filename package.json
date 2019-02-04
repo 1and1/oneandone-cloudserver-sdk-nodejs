@@ -11,7 +11,7 @@
   "bugs": {
     "url": "https://github.com/1and1/oneandone-cloudserver-sdk-nodejs/issues"
   },
-  "homepage": "ttps://github.com/1and1/oneandone-cloudserver-sdk-nodejs",
+  "homepage": "https://github.com/1and1/oneandone-cloudserver-sdk-nodejs",
   "directories": {
     "example": "examples"
   },
