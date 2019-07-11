@@ -2,25 +2,16 @@
   "name": "liboneandone",
   "version": "1.2.0",
   "description": "The 1&1 Library for Node and Io",
-  "main": "./lib/index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "author": "alibaz <ali@stackpointcloud.com>",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/temp/temp.git"
+    "url": "https://github.com/1and1/oneandone-cloudserver-sdk-nodejs.git"
   },
-  "author": "alibaz <ali@stackpointcloud.com>",
-  "license": "BSD",
   "bugs": {
-    "url": ""
+    "url": "https://github.com/1and1/oneandone-cloudserver-sdk-nodejs/issues"
   },
-  "homepage": "",
-  "dependencies": {
-    "mocha": "^2.5.3",
-    "request": "^2.74.0"
-  },
-  "devDependencies": {},
+  "homepage": "https://github.com/1and1/oneandone-cloudserver-sdk-nodejs",
   "directories": {
     "example": "examples"
   },
@@ -37,5 +28,15 @@
     "libOneAndone",
     "1&1",
     "fs"
-  ]
+  ],
+  "main": "./lib/index.js",
+  "dependencies": {
+    "request": "^2.88.0"
+  },
+  "devDependencies": {
+    "mocha": "^5.2.0"
+  },
+  "scripts": {
+    "test": "mocha"
+  }
 }
